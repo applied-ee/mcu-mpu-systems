@@ -1,5 +1,5 @@
 ---
-title: "Digital Interfaces & Peripheral Recipes"
+title: "Digital Interfaces & Peripheral Patterns"
 weight: 2
 bookCollapseSection: true
 ---

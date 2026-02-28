@@ -18,9 +18,9 @@ Content uses a 3-level hierarchy: L0 (top sections) → L1 (subsections) → L2 
 | Weight | Directory | Title |
 |--------|-----------|-------|
 | 1 | `foundations/` | Foundations for Building Embedded Systems |
-| 2 | `digital-interfaces/` | Digital Interfaces & Peripheral Recipes |
+| 2 | `digital-interfaces/` | Digital Interfaces & Peripheral Patterns |
 | 3 | `led-systems/` | LED Systems |
-| 4 | `sensor-integration/` | Sensor Integration Recipes |
+| 4 | `sensor-integration/` | Sensor Integration Patterns |
 | 5 | `power-battery/` | Real-World Power + Battery Projects |
 | 6 | `networking/` | Networking & Connectivity |
 | 7 | `linux-embedded/` | Linux-Based Embedded Systems |
