@@ -11,6 +11,10 @@ When a board has multiple voltage rails — a common scenario with modern MCUs t
 
 Most MCUs specify that the core supply (typically 1.2V or 1.8V on parts with internal regulators) must be stable before or simultaneously with the I/O supply (3.3V). If the I/O pins are powered before the core, internal ESD protection diodes can forward-bias and inject current into unpowered logic, triggering latch-up. The STM32F4 datasheet requires that VDD be applied before or at the same time as VDDA, and both must be present before any signal pin sees a logic-high level. Violating this constraint is a common cause of damage during board bring-up when test equipment drives signals before all rails are live.
 
+## Latch-Up Mechanism
+
+Latch-up originates from the parasitic PNPN structure (a silicon-controlled rectifier, or SCR) inherent in every CMOS process. The p-substrate, n-well, and diffusion regions form interlocking parasitic PNP and NPN transistors. Under normal operation these parasitics remain off, but injecting current into an unpowered rail — through an I/O pin driven high while VDD is absent, for instance — can forward-bias one of the junctions and trigger the SCR. Once latched, the SCR creates a low-impedance path between VDD and ground that draws hundreds of milliamps to several amps, independent of any firmware or logic state. The only recovery is a full power cycle. If the current is sustained, the die overheats and the device is permanently damaged. Proper sequencing ensures that no I/O pin or external supply can inject current before the core logic is powered and the substrate is properly biased.
+
 ## Reset Supervisors
 
 A reset supervisor monitors the supply voltage and holds the MCU's reset line asserted until the supply is stable and above a defined threshold. The TPS3839 is a popular nanowatt supervisor (150nA quiescent) that holds NRST low until VDD crosses its threshold (available in fixed voltages like 2.93V for 3.3V systems). The APX809 is another common choice, offering a clean active-low reset output with a typical threshold accuracy of 2.5%.
@@ -23,7 +27,11 @@ Brownout occurs when the supply voltage dips below the MCU's minimum operating v
 
 ## Power-Good Signals and Sequencing ICs
 
-Switching regulators often provide a power-good (PG) output that goes high when the output voltage is within regulation. Chaining the PG output of one regulator to the enable (EN) pin of the next creates a simple sequencing scheme: the 1.8V core rail must be stable before the 3.3V I/O regulator is allowed to start. For boards with three or more rails, dedicated sequencing ICs (like the TPS382x family) manage startup order, timing delays, and fault detection in a single part.
+Switching regulators often provide a power-good (PG) output that goes high when the output voltage is within regulation. Chaining the PG output of one regulator to the enable (EN) pin of the next creates a simple sequencing scheme: the 1.8V core rail must be stable before the 3.3V I/O regulator is allowed to start. A simple RC delay on the enable pin — for example a 100kOhm resistor and 100nF capacitor giving ~7ms delay — can enforce timing between rails without additional ICs, though the timing varies with component tolerances and temperature.
+
+For boards with three or more rails, dedicated sequencing ICs manage startup order, timing delays, and fault detection in a single part. The TPS65263 is a triple-output synchronous buck converter with built-in sequencing — each output can be configured to start after the previous rail reaches regulation, eliminating external PG-to-EN wiring. The TPS382x family provides standalone sequencing and monitoring for systems using discrete regulators, with programmable delay between enable assertions and undervoltage fault detection on each rail.
+
+The general rule is core before I/O: the lowest-voltage core supply (1.0V, 1.2V, or 1.8V) powers up first, followed by the I/O supply (3.3V), and finally any higher-voltage peripheral rails (5V, 12V). Exceptions exist — some FPGAs require the I/O supply first, and certain RF front-ends specify their own sequencing order. The device datasheet is always the authoritative source.
 
 ## RC Reset Circuits vs Dedicated Supervisors
 
@@ -43,6 +51,7 @@ The classic RC reset circuit — a resistor and capacitor on the NRST pin that c
 - **Applying signals to I/O pins before VDD is stable risks latch-up** — External devices that power up faster than the MCU can inject current through ESD diodes into unpowered core logic, potentially causing permanent damage
 - **The internal POR threshold varies across manufacturing lots** — Relying solely on the STM32's built-in power-on reset means some boards in a production run may start reliably while others do not, depending on where each part falls within the threshold tolerance
 - **Sequencing violations may not cause immediate failure** — Latch-up can manifest as excessive current draw that slowly overheats the die, or as rare random resets that only appear under specific supply conditions
+- **RC delay networks have wide tolerances** — A 100kOhm ±5% resistor and 100nF ±10% ceramic capacitor yield a time constant that varies by ±15% across the tolerance range, and more with temperature; designs requiring tight sequencing windows should use a dedicated sequencer IC
 
 ## In Practice
 

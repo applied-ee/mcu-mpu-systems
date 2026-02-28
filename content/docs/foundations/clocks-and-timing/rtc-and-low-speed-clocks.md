@@ -19,6 +19,18 @@ The RTC peripheral maintains a calendar (seconds, minutes, hours, day, date, mon
 
 The RTC prescaler chain consists of an asynchronous prescaler (typically set to 128) and a synchronous prescaler (typically 256), giving 32768 / 128 / 256 = 1 Hz for the calendar counter. The asynchronous prescaler should be set as high as possible because it consumes less power than the synchronous stage.
 
+## RTC Smooth Calibration
+
+Even a good 32.768 kHz crystal drifts by +/-20 ppm, which accumulates to roughly 10 seconds per month. STM32 parts offer a smooth calibration mechanism that compensates for this drift by adding or removing individual clock pulses from the prescaler input over a 32-second window. The calibration register (RTC_CALR) accepts a value specifying how many pulses to add (CALP bit inserts 512 extra pulses per 32 seconds) or mask (CALM field removes 0-511 pulses per 32 seconds). The combination provides a correction range of roughly +/-487 ppm in steps of approximately 0.954 ppm. The calibration procedure involves measuring the actual LSE frequency via MCO or a frequency counter, computing the ppm deviation, and writing the corresponding CALM/CALP value. After calibration, the RTC maintains sub-ppm effective accuracy without replacing the crystal.
+
+## Alarm Wakeup from Stop Mode
+
+The RTC alarms can bring the MCU out of Stop mode (or Standby mode) without any external signal. The typical pattern involves configuring an RTC alarm to a future time, enabling the alarm interrupt through the EXTI line (EXTI line 17 for Alarm A on STM32F4), entering Stop mode via the WFI instruction, and handling the alarm ISR upon wakeup. The wakeup timer is often more convenient for periodic wakeups — it can generate interrupts at intervals from sub-second to 36 hours without needing to compute an absolute alarm time. A system that wakes every 30 seconds to sample a sensor and returns to Stop mode achieves average current draw in the low microamp range, dominated by the LSE oscillator and RTC current.
+
+## Backup Register Usage
+
+The 20 backup registers (RTC_BKPxR on STM32F4) survive system resets and power cycles as long as VBAT is maintained, making them suitable for storing small amounts of persistent state. Common uses include boot counters (incrementing a register on each startup to detect rapid reset loops), crash flags (firmware writes a sentinel value before entering a risky operation and clears it on success — if the sentinel is still set on the next boot, the previous run crashed), and RTC calibration values (preserving the calibration across firmware updates). These registers are lost on backup domain reset or VBAT removal, so they are not a substitute for flash or EEPROM for truly persistent storage, but the ability to write them without flash erase cycles makes them convenient for frequently updated counters and flags.
+
 ## LSE Crystal Requirements
 
 The 32.768 kHz crystal has stricter layout requirements than the HSE crystal because the oscillator circuit operates at much lower power to minimize battery drain. Crystal ESR (Equivalent Series Resistance) must be below the MCU's specified maximum — typically 50-70 kohm for STM32 parts. Crystals with ESR above this limit may fail to start or oscillate unreliably.
@@ -43,6 +55,7 @@ Backup registers (typically 20x 32-bit registers on STM32F4) retain data through
 - Set the RTC asynchronous prescaler to 128 (the maximum) to minimize power consumption in the backup domain
 - Verify LSE startup by checking the LSERDY flag with a timeout — a crystal that fails to start should be handled gracefully, not waited on indefinitely
 - Use backup registers to store a magic value on first boot; checking this value after reset distinguishes a clean power-up from a watchdog reset or brown-out recovery
+- Perform RTC smooth calibration during production test if the application requires better than +/-20 ppm timekeeping — a one-time frequency measurement and register write can reduce effective drift by 10-20x
 - When selecting a 32.768 kHz crystal, check its ESR against the MCU datasheet's maximum — exceeding this limit is the most common cause of LSE startup failure
 
 ## Caveats

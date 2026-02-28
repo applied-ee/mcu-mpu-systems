@@ -12,7 +12,7 @@ This section covers the core knowledge needed before writing application-level f
 
 ## Sections
 
-- **[Choosing the Right MCU]({{< relref "choosing-the-right-mcu" >}})** — MCU vs MPU tradeoffs, key specifications, popular families, packages, and the ecosystem considerations that shape long-term project viability.
+- **[Choosing the Right Platform]({{< relref "choosing-the-right-mcu" >}})** — MCU vs MPU tradeoffs, key specifications, popular families, packages, and the ecosystem considerations that shape long-term project viability.
 - **[Power Architecture for Embedded Projects]({{< relref "power-architecture" >}})** — Regulator selection, decoupling strategy, power sequencing, and power budget estimation for reliable embedded power delivery.
 - **[Clocks & Timing]({{< relref "clocks-and-timing" >}})** — Oscillator sources, clock tree configuration, PLL setup, and the low-speed clock domains that drive RTC and watchdog peripherals.
 - **[Memory Architecture & Linker Configuration]({{< relref "memory-and-linker" >}})** — Flash and SRAM fundamentals, stack and heap layout, linker script mechanics, and persistent storage strategies.

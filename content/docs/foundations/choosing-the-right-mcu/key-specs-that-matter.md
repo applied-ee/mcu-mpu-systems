@@ -15,13 +15,36 @@ Cortex-M0/M0+ cores (e.g., RP2040 at 133 MHz, STM32L0 at 32 MHz) handle GPIO, UA
 
 Flash holds the program; SRAM holds runtime data. An STM32F103C8 has 64 KB flash and 20 KB SRAM — enough for bare-metal sensor applications but tight for a BLE stack. An ESP32-S3 provides up to 16 MB of external flash (via SPI) and 512 KB of internal SRAM. A FreeRTOS task typically consumes 256-1024 bytes of stack, so running 10 tasks on a 20 KB SRAM part requires careful allocation. Flash size becomes critical with TLS libraries (~50-80 KB), USB stacks (~20-40 KB), or graphic assets for displays. Doubling the flash from 128 KB to 256 KB often costs less than $0.30 at volume, so over-specifying flash is cheap insurance.
 
-## Peripheral Counts and Capabilities
+## Peripheral Counts and Pin Mux Conflicts
 
 The raw count of UART, SPI, and I2C interfaces matters less than their pinout flexibility and DMA support. An STM32F4 with 6 USARTs sounds generous, but on a 48-pin LQFP package, pin conflicts may limit actual use to 3. Timer capabilities vary dramatically: basic timers (counting only), general-purpose timers (PWM, input capture), and advanced timers (complementary outputs with dead-time for motor control) are not interchangeable. A project needing 6 independent PWM channels requires checking the timer architecture, not just the GPIO count.
 
+Pin mux conflicts arise because each physical pin supports multiple alternate functions (AF), but only one AF can be active at a time. On an STM32F446 in a 64-pin LQFP, for example, PA5 can serve as SPI1_SCK (AF5) or TIM2_CH1 (AF1). If the design requires both SPI1 and TIM2_CH1, the SPI clock must be remapped to PB3 — which might already be assigned to JTDO (debug trace). These conflicts cascade: resolving one often creates another. Running every planned peripheral through the pin-mux tool (CubeMX, PinMUX, or the MCU's AF mapping table) before selecting a package is essential to avoid mid-layout surprises.
+
+## DMA Channel Contention
+
+DMA controllers have a fixed number of streams (or channels), and each stream is mapped to specific peripherals. On an STM32F4, DMA1 has 8 streams, each with 8 channel selections — but not every peripheral-to-stream mapping is available. If SPI2_RX and USART3_RX both require DMA1 Stream 0, only one can use it at a time. The workaround is either assigning one peripheral to a different DMA stream (if an alternate mapping exists) or falling back to interrupt-driven transfers for the lower-priority peripheral. In high-throughput systems — simultaneous ADC sampling, SPI display updates, and UART logging — DMA contention becomes the limiting architectural constraint, not raw CPU speed.
+
+## Flash Wait States
+
+Flash memory cannot always keep pace with the CPU core at high frequencies. The number of wait states (extra clock cycles the CPU stalls while waiting for flash) depends on operating frequency and supply voltage. A representative example for an STM32F4 series:
+
+| Core Frequency | VDD = 2.7–3.6 V | VDD = 2.4–2.7 V | VDD = 2.1–2.4 V |
+|----------------|------------------|------------------|------------------|
+| Up to 30 MHz | 0 WS | 0 WS | 0 WS |
+| 30–60 MHz | 1 WS | 1 WS | 1 WS |
+| 60–90 MHz | 2 WS | 2 WS | 3 WS |
+| 90–120 MHz | 3 WS | 4 WS | 4 WS |
+| 120–150 MHz | 4 WS | 5 WS | 5 WS |
+| 150–168 MHz | 5 WS | — | — |
+
+At 168 MHz with 5 wait states, fetching an instruction from flash takes 6 cycles instead of 1. The ART Accelerator (instruction cache + prefetch) on STM32F4 mitigates this for sequential code, but branchy interrupt handlers that miss the cache run at significantly reduced effective speed. Cortex-M7 parts (STM32H7) add separate I-cache and D-cache, which helps — but cache-incoherent DMA transfers require explicit cache maintenance (clean/invalidate), adding software complexity.
+
 ## ADC Resolution and Sampling Rate
 
-A 12-bit ADC with a maximum sampling rate of 2 MSPS (e.g., STM32F4) sounds adequate, but ENOB at full speed may drop to 9-10 bits due to internal noise. For applications requiring true 12-bit performance, reducing the sampling rate to 100 KSPS or using an external ADC (ADS1115 at 16-bit, 860 SPS) is often necessary. The number of ADC channels, the presence of a sample-and-hold for simultaneous sampling, and whether DMA can stream ADC results to memory without CPU intervention are more important than headline resolution for data acquisition projects.
+A 12-bit ADC with a maximum sampling rate of 2 MSPS (e.g., STM32F4) sounds adequate, but ENOB at full speed may drop to 9-10 bits due to internal noise. ENOB is derived from the signal-to-noise-and-distortion ratio (SINAD): ENOB = (SINAD - 1.76) / 6.02. A 12-bit ADC with a measured SINAD of 62 dB yields an ENOB of ~10.0 bits — meaning the bottom 2 bits are noise, not signal. At maximum sampling rate, SINAD degrades because the internal sample-and-hold has less settling time and switching noise increases. Reducing the sampling rate to 100 KSPS or using an external ADC (ADS1115 at 16-bit, 860 SPS) is often necessary for true 12-bit performance.
+
+The number of ADC channels, the presence of a sample-and-hold for simultaneous sampling, and whether DMA can stream ADC results to memory without CPU intervention are more important than headline resolution for data acquisition projects. Board layout also matters: an ADC that measures 11.5 ENOB on the evaluation board may deliver only 9 ENOB on a noisy custom PCB with inadequate decoupling or analog/digital ground separation.
 
 ## Operating Voltage and Package Options
 
@@ -34,6 +57,8 @@ Most modern MCUs run at 3.3 V, but 1.8 V cores are increasingly common for low-p
 - Compare SRAM size against the combined stack and heap requirements of the planned RTOS tasks, communication stacks, and data buffers — running out of RAM mid-development is painful.
 - Verify the ADC ENOB at the actual sampling rate planned for the application, not the headline resolution — datasheets usually bury ENOB data in electrical characteristics tables.
 - Pick the smallest package that still routes cleanly — a 64-pin LQFP is often preferable to a 48-pin QFN if it eliminates two PCB layers.
+- When evaluating flash wait states, check whether the MCU has an instruction cache or prefetch accelerator — these can mask the performance impact of high wait-state counts for sequential code, but branchy interrupt handlers still pay the penalty.
+- Map all planned DMA transfers (ADC, SPI, UART, I2C, memory-to-memory) to specific DMA streams during part selection — discovering contention after schematic capture forces either a firmware workaround or a part change.
 
 ## Caveats
 

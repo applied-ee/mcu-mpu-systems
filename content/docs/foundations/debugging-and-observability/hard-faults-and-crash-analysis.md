@@ -46,6 +46,20 @@ Null pointer dereferences produce a BusFault when the access hits the reserved a
 
 With a debug probe attached, GDB provides direct access to the fault state. The command `info registers` shows the current register file. Examining the fault registers directly: `x/wx 0xE000ED28` reads CFSR, `x/wx 0xE000ED2C` reads HFSR. The `bt` (backtrace) command may work if the stack is intact, but corrupted stacks require manual unwinding from the stacked PC value. Setting `pc` from the stacked frame and using `list *0x<address>` maps the faulting instruction back to source code.
 
+For manual stack unwinding, `x/8xw $sp` (or `x/8xw $msp` / `x/8xw $psp` depending on which stack was active) dumps the 8-word exception frame. The words appear in order: R0, R1, R2, R3, R12, LR, PC, xPSR. The sixth word (LR) contains the return address of the calling function, and the seventh word (PC) is the faulting instruction. Feeding the PC value to `arm-none-eabi-addr2line -e firmware.elf -f 0x08001234` returns the source file, function name, and line number. For deeper call chain reconstruction, the stacked LR gives the caller, and examining memory at that function's frame pointer reveals the next caller up the chain.
+
+## Watchdog Timer Integration
+
+A watchdog timer provides a hardware safety net against firmware hangs. The Independent Watchdog (IWDG) on STM32 runs from an internal low-speed oscillator (LSI, typically 32-40 kHz), making it independent of the main system clock. The watchdog timeout should be set relative to the main loop period — a common approach is 2-3x the expected worst-case loop iteration time. Refreshing the watchdog (writing 0xAAAA to IWDG_KR on STM32) must happen in the main loop, never inside an interrupt handler. Refreshing from an interrupt defeats the watchdog's purpose: the interrupt continues firing even if the main loop is stuck, so the watchdog never triggers. If multiple tasks run in an RTOS, each task can set a flag, and only when all flags are set does the idle task or a dedicated monitor task refresh the watchdog.
+
+## Reset Cause Register Inspection
+
+After a reset, the firmware can determine what caused the previous reset by reading the Reset and Clock Control status register (RCC_CSR on STM32). Key flags include: IWDGRSTF (independent watchdog), WWDGRSTF (window watchdog), SFTRSTF (software reset via NVIC_SystemReset), PORRSTF (power-on reset), and PINRSTF (external reset pin). Reading these flags at the top of `main()` — before any peripheral initialization — and storing them provides a reset history log. The flags are sticky and must be cleared by setting the RMVF bit in RCC_CSR after reading; otherwise, they accumulate across multiple resets. Logging the reset cause to non-volatile storage (backup registers, EEPROM, or a reserved flash sector) enables post-mortem analysis of field failures.
+
+## MPU Configuration for Stack Guard
+
+The Memory Protection Unit (MPU) can be configured to create a no-access guard region at the bottom of the stack. When the stack pointer descends into this region, a MemManage fault fires immediately instead of silently overwriting adjacent memory. A typical configuration reserves 32 bytes at the stack base as a guard region with no access permissions. The MPU region must be aligned to its size (minimum 32 bytes on Cortex-M), and the region number must not conflict with other MPU regions. This approach converts silent stack overflow corruption — which can produce symptoms far removed from the actual overflow point — into an immediate, diagnosable fault at the exact moment the stack exceeds its allocation.
+
 ## Tips
 
 - Enable BusFault, UsageFault, and MemManage handlers early in startup by setting the corresponding enable bits in SHCSR (0xE000ED24) — this provides more specific fault information than a generic HardFault escalation.
@@ -53,6 +67,8 @@ With a debug probe attached, GDB provides direct access to the fault state. The 
 - Store the faulting PC, CFSR, and LR to a persistent region (backup SRAM or a reserved flash sector) before resetting, so crash information survives a watchdog reset.
 - Enable divide-by-zero trapping via the CCR register (bit 4, DIV_0_TRP) — without this, Cortex-M silently returns zero on integer division by zero.
 - Compile with `-fstack-usage` and `-Wstack-usage=N` to get per-function stack consumption at build time, helping size the stack allocation correctly.
+- Read and log RCC_CSR reset cause flags at the top of `main()` before any peripheral initialization — this distinguishes between power-on, watchdog, software, and pin-reset events for field diagnostics.
+- Configure the IWDG timeout to 2-3x the worst-case main loop period; too short causes spurious resets, too long delays recovery from genuine hangs.
 
 ## Caveats
 
@@ -69,3 +85,5 @@ With a debug probe attached, GDB provides direct access to the fault state. The 
 - A UsageFault with UFSR bit 0 (UNDEFINSTR) set and the stacked PC pointing to valid flash suggests the instruction stream was corrupted, which can happen from errant DMA transfers writing into the code region.
 - A system that hard faults immediately on startup with the stacked PC at or near 0x00000000 indicates a missing or corrupted vector table — the processor read an invalid reset handler address from the first entry in flash.
 - A MemManage fault that only appears in release builds but not debug builds often traces to a stack overflow triggered by aggressive inlining, which increases stack usage beyond the allocated region.
+- A device that repeatedly watchdog-resets in the field but works on the bench suggests a timing-dependent code path (e.g., a blocking wait for an external peripheral response that times out under certain conditions) — reading the reset cause register confirms watchdog involvement and narrows the investigation.
+- An MPU-guarded stack that triggers a MemManage fault during a deeply nested interrupt sequence indicates the stack allocation is too small for the worst-case interrupt nesting depth — increasing the stack size or reducing nesting resolves the fault.

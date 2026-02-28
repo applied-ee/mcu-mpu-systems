@@ -9,7 +9,23 @@ Getting compiled firmware into a microcontroller's flash memory — and ensuring
 
 ## SWD and JTAG Flashing
 
-SWD (Serial Wire Debug) is the standard debug and programming interface for ARM Cortex-M devices, requiring only two signal lines (SWDIO and SWCLK) plus ground. Common debug probes include the ST-LINK V2 (bundled with STM32 Nucleo boards), Segger J-Link, and CMSIS-DAP adapters. OpenOCD and pyOCD are open-source tools that drive these probes: `openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "program firmware.elf verify reset exit"` flashes, verifies, and resets in a single command. J-Link Commander (`JLinkExe`) offers faster flash speeds — often 500 KB/s or more — and supports direct `.bin`, `.hex`, and `.elf` loading. SWD also enables live debugging, breakpoints, and memory inspection, making it the primary interface during development.
+SWD (Serial Wire Debug) is the standard debug and programming interface for ARM Cortex-M devices, requiring only two signal lines (SWDIO and SWCLK) plus ground. Common debug probes include the ST-LINK V2 (bundled with STM32 Nucleo boards), Segger J-Link, and CMSIS-DAP adapters. OpenOCD and pyOCD are open-source tools that drive these probes. A typical OpenOCD configuration for an STM32F4 target:
+
+```tcl
+source [find interface/stlink.cfg]
+transport select hla_swd
+source [find target/stm32f4x.cfg]
+reset_config srst_only
+
+# Flash, verify, and reset in one command
+program firmware.elf verify reset exit
+```
+
+Invoking this as `openocd -f openocd.cfg` (or inline with `-c` flags) flashes, reads back the written data for verification, and resets the target. J-Link Commander (`JLinkExe`) offers faster flash speeds — often 500 KB/s or more — and supports direct `.bin`, `.hex`, and `.elf` loading. SWD also enables live debugging, breakpoints, and memory inspection, making it the primary interface during development.
+
+## Flash Verification
+
+Post-write verification reads back the flash contents and compares them against the source image byte-by-byte. Both OpenOCD (`verify` keyword) and J-Link perform this automatically when requested. Verification catches several failure modes: incomplete writes due to USB communication errors, voltage droops during erase cycles that corrupt sectors, and bad connections where the probe intermittently loses contact. On production lines, verification is mandatory — a single undetected bit flip in a vector table entry causes a hard fault on first boot. For large images (100+ KB), verification adds 1–2 seconds but prevents hours of debugging a "randomly" misbehaving device.
 
 ## UART and USB Bootloaders
 
@@ -19,9 +35,33 @@ Most STM32 devices include a factory-programmed ROM bootloader accessible by hol
 
 The RP2040 (Raspberry Pi Pico) popularized the UF2 (USB Flashing Format) approach: holding the BOOTSEL button during power-on makes the chip enumerate as a USB mass-storage device. Copying a `.uf2` file to this drive flashes and reboots the target automatically. No drivers, no tools, no configuration — this is the lowest-friction programming method available. The tradeoff is that UF2 provides no debug access and no flash verification feedback beyond "the device rebooted." Other platforms adopting UF2 include Adafruit's SAMD and nRF52 boards.
 
+## Boot Pin Configuration
+
+STM32 devices use BOOT0 and (on some families) BOOT1 pins to select the boot source at reset. The typical configurations are:
+
+- **BOOT0 = 0** — Boot from main flash (0x08000000). This is the normal operating mode. A 10k pull-down resistor to GND ensures reliable low state.
+- **BOOT0 = 1, BOOT1 = 0** — Boot from system memory (ROM bootloader). The factory-programmed bootloader activates, enabling UART/USB/I2C programming without a debug probe.
+- **BOOT0 = 1, BOOT1 = 1** — Boot from embedded SRAM (for development and testing only).
+
+On custom PCBs, a common approach is to route BOOT0 to a 2-pin header with a default pull-down resistor, allowing the bootloader to be activated by placing a jumper. Some designs use a push-button that pulls BOOT0 high only while held — pressing the button and toggling RESET enters the bootloader without any jumper changes.
+
 ## Boot Sequence on Cortex-M
 
 On a Cortex-M, the boot process is hardware-defined and takes microseconds. The processor reads the initial stack pointer from address 0x00000000 (mapped to flash base, typically 0x08000000 on STM32) and the reset vector from address 0x00000004. Execution begins at the `Reset_Handler`, which typically copies `.data` from flash to RAM, zeroes `.bss`, calls `SystemInit()` to configure clocks, and finally calls `main()`. The entire sequence from power-on to `main()` entry is typically under 10 ms with default clock settings, and under 1 ms if the PLL setup is deferred.
+
+## Bootloader and Application Offset
+
+When a custom bootloader is present, it occupies the base of flash (e.g., 0x08000000 to 0x0800FFFF for a 64 KB bootloader). The application firmware is linked to start at an offset — for example, 0x08010000. The bootloader validates the application image (checksum, version, signature), then hands off execution by loading the application's stack pointer and jumping to its reset vector:
+
+```c
+uint32_t app_start = 0x08010000;
+uint32_t app_sp  = *(volatile uint32_t *)(app_start);
+uint32_t app_pc  = *(volatile uint32_t *)(app_start + 4);
+__set_MSP(app_sp);
+((void (*)(void))app_pc)();
+```
+
+The application must relocate its vector table by writing `SCB->VTOR = 0x08010000;` early in its `Reset_Handler` or `SystemInit()`. Without this relocation, interrupts jump to the bootloader's vector table entries instead of the application's handlers, causing immediate hard faults once interrupts are enabled.
 
 ## Tips
 

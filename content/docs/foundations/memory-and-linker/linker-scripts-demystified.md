@@ -36,6 +36,79 @@ SECTIONS maps compiled output into the defined memory regions. The essential sec
 
 Before main() executes, the startup code (usually `startup_stm32f4xx.s` or equivalent) runs the Reset_Handler, which performs three critical steps: copies .data from flash to SRAM using the `_sidata`, `_sdata`, and `_edata` symbols; zeroes .bss from `_sbss` to `_ebss`; then calls SystemInit (clock configuration) followed by main(). If any of these steps are skipped or the symbols are wrong, initialized globals contain flash-address garbage and .bss variables are not zeroed.
 
+A simplified C representation of the Reset_Handler illustrates the dependency on linker-provided symbols:
+
+```c
+/* Simplified Reset_Handler sequence */
+void Reset_Handler(void) {
+    /* Copy .data from flash to SRAM */
+    uint32_t *src = &_sidata;
+    uint32_t *dst = &_sdata;
+    while (dst < &_edata) *dst++ = *src++;
+
+    /* Zero .bss */
+    dst = &_sbss;
+    while (dst < &_ebss) *dst++ = 0;
+
+    /* Call static constructors (C++) */
+    __libc_init_array();
+
+    main();
+}
+```
+
+Every symbol referenced here (`_sidata`, `_sdata`, `_edata`, `_sbss`, `_ebss`) is defined by the linker script. If the linker script is modified without matching updates to the startup code — or vice versa — the copy loop reads from the wrong flash address or zeros the wrong SRAM region.
+
+## `KEEP()` and `--gc-sections`
+
+The linker flag `--gc-sections` (enabled by `-Wl,--gc-sections` on the GCC command line) instructs the linker to discard any section not reachable through the call graph starting from the entry point. This is an effective way to strip dead code and reduce flash usage — typical savings range from 5% to 30% on large projects.
+
+However, garbage collection only follows symbol references. The vector table is referenced by the hardware at a fixed address, not by any symbol in application code. Without `KEEP()`, the linker has no way to know the vector table is needed and will silently remove it, producing firmware that hard-faults at reset because the core reads garbage from address 0x08000000.
+
+```
+.isr_vector : {
+    . = ALIGN(4);
+    KEEP(*(.isr_vector))
+    . = ALIGN(4);
+} >FLASH
+```
+
+The same applies to any section placed at a fixed address for hardware or bootloader consumption: `KEEP()` prevents removal regardless of whether the section appears in the call graph.
+
+## `ASSERT()` for Link-Time Overflow Detection
+
+Linker scripts can include `ASSERT()` statements that abort the build if a condition is violated. The most common use is catching SRAM overflow before it becomes a runtime hard fault:
+
+```
+ASSERT(. <= ORIGIN(RAM) + LENGTH(RAM), "RAM overflow: .data + .bss + stack exceeds available SRAM")
+ASSERT(_estack - _ebss >= _Min_Stack_Size, "Insufficient stack space after static allocations")
+```
+
+These checks run at link time and produce a clear error message instead of a silent build that crashes at runtime. Adding ASSERT statements for both flash and RAM boundaries is a low-effort safeguard that catches the most common class of linker-script-related failures.
+
+## Custom Section Placement
+
+Firmware frequently needs to place a data structure at a fixed flash address — for example, a configuration block that a bootloader and application share, or a version string readable by an external programmer. The approach combines a GCC section attribute with explicit linker script placement:
+
+```c
+/* In application code */
+__attribute__((section(".app_config"), used))
+const struct app_config config = {
+    .magic     = 0xCONF1604,
+    .version   = 3,
+    .boot_addr = 0x08010000,
+};
+```
+
+```
+/* In linker script */
+.app_config 0x0801F000 : {
+    KEEP(*(.app_config))
+} >FLASH
+```
+
+The `used` attribute prevents the compiler from optimizing out the struct if it is never referenced by code, and `KEEP()` prevents the linker from discarding it during garbage collection. The fixed address `0x0801F000` ensures the bootloader can always find the configuration block regardless of application code size.
+
 ## Reading Build Output
 
 `arm-none-eabi-size -A firmware.elf` shows the size of each section in bytes. A healthy output for a small project might show: .text at 24 KB, .rodata at 3 KB, .data at 512 bytes, .bss at 8 KB. The flash usage is .text + .rodata + .data (the initial values). The SRAM usage is .data + .bss + stack + heap. The map file (`-Wl,-Map=firmware.map`) provides exact addresses and shows which object files contribute the most to each section — essential for tracking down unexpected memory growth.

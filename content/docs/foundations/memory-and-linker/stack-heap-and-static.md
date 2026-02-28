@@ -15,9 +15,76 @@ Global variables and file-scope statics are placed by the linker into two sectio
 
 The stack starts at the top of SRAM (or at a linker-defined address) and grows downward. Each function call pushes a stack frame: local variables, saved registers, and the return address. A Cortex-M4 defaults to a 1-4 KB stack in most vendor-provided linker scripts, though this is configurable. Deep call chains, recursive functions, or large local arrays (e.g., `char buf[1024]` inside a function) consume stack rapidly. Stack overflow is the single most common memory bug in embedded firmware — it overwrites .bss or heap data silently, producing symptoms far removed from the offending function.
 
+### Stack Watermark Painting
+
+A practical technique for measuring worst-case stack depth is "painting" the stack region with a known sentinel value at startup, then scanning from the bottom after the firmware has exercised all code paths:
+
+```c
+/* Paint stack region at startup (call before main) */
+extern uint32_t _sstack, _estack;
+void stack_paint(void) {
+    volatile uint32_t *p = &_sstack;
+    while (p < &_estack - 64) { *p++ = 0xDEADBEEF; }
+}
+
+uint32_t stack_high_water(void) {
+    uint32_t *p = &_sstack;
+    while (*p == 0xDEADBEEF) p++;
+    return (uint32_t)(&_estack - p);  /* bytes used */
+}
+```
+
+The `stack_paint()` function should run from the Reset_Handler before any C runtime initialization that uses the stack. Calling `stack_high_water()` later — via a debug UART command or a periodic diagnostic task — reports the maximum stack depth observed since boot.
+
+### Static Analysis with `-fstack-usage`
+
+GCC's `-fstack-usage` flag generates a `.su` file alongside each object file, listing the stack consumption of every function in bytes. A typical entry looks like:
+
+```
+main.c:42:6:process_packet	128	static
+```
+
+This means `process_packet` at line 42 uses 128 bytes of stack, and the usage is statically determinable (no variable-length arrays or alloca). Combining `.su` data with the call graph from `-fdump-rtl-expand` allows computing worst-case stack depth for the entire call tree without running the firmware.
+
+### MPU-Based Stack Overflow Detection
+
+On Cortex-M devices with an MPU (Memory Protection Unit), a guard region can be configured at the bottom of the stack. Setting a 32-byte or 64-byte MPU region with no access permissions causes a MemManage fault the instant the stack pointer enters the guard zone, producing a deterministic trap instead of silent corruption. This approach catches overflow at the exact instruction that crosses the boundary, making the root cause immediately visible in a debugger.
+
 ## The Heap
 
 Heap memory comes from malloc/calloc/realloc and grows upward from the end of .bss. On desktop systems, the heap is effectively unlimited; on an MCU with 32 KB of SRAM, it might be 4-8 KB at best. Fragmentation is the primary risk: after many allocate/free cycles, the heap can have enough total free bytes but no single contiguous block large enough to satisfy a request. Many embedded projects avoid the heap entirely, using only static allocation and stack variables. When dynamic allocation is needed, fixed-size block pools or arena allocators provide predictable behavior without fragmentation.
+
+### Static Pool Allocator Pattern
+
+A common alternative to `malloc` in safety-critical or long-running firmware is a static pool allocator. The pool is a fixed-size array of equal-sized blocks, with a free list tracking available slots:
+
+```c
+#define POOL_BLOCK_SIZE  64
+#define POOL_BLOCK_COUNT 16
+
+static uint8_t pool_memory[POOL_BLOCK_COUNT][POOL_BLOCK_SIZE];
+static uint8_t pool_free[POOL_BLOCK_COUNT];
+static int pool_initialized = 0;
+
+void pool_init(void) {
+    for (int i = 0; i < POOL_BLOCK_COUNT; i++) pool_free[i] = 1;
+    pool_initialized = 1;
+}
+
+void *pool_alloc(void) {
+    for (int i = 0; i < POOL_BLOCK_COUNT; i++) {
+        if (pool_free[i]) { pool_free[i] = 0; return pool_memory[i]; }
+    }
+    return NULL;  /* pool exhausted */
+}
+
+void pool_free_block(void *ptr) {
+    int idx = ((uint8_t *)ptr - &pool_memory[0][0]) / POOL_BLOCK_SIZE;
+    if (idx >= 0 && idx < POOL_BLOCK_COUNT) pool_free[idx] = 1;
+}
+```
+
+This approach guarantees O(n) worst-case allocation time, zero fragmentation, and a deterministic memory ceiling visible in the map file. Multiple pools with different block sizes can coexist when the application requires several allocation granularities.
 
 ## RTOS Stack Considerations
 

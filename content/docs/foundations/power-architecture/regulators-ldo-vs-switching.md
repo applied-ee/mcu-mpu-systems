@@ -11,13 +11,23 @@ Every embedded system needs at least one voltage regulator to convert a supply r
 
 A low-dropout regulator (LDO) works by burning excess voltage as heat. The power dissipated is straightforward: P = (Vin - Vout) * Iload. Converting 5V to 3.3V at 200mA dissipates (5 - 3.3) * 0.2 = 340mW — manageable in a SOT-223 package. Converting 12V to 3.3V at the same current dissipates 1.74W, which exceeds most small-package thermal limits without a copper pour or heatsink.
 
+To determine whether a given package can survive that dissipation, combine the power calculation with the package's thermal resistance. For example, a SOT-23-5 package with Rth_ja of 250°C/W dissipating 340mW raises the junction temperature 85°C above ambient. At a 40°C ambient, the junction reaches 125°C — right at the maximum for most regulators. Switching to a SOT-223 (Rth_ja ~60°C/W) brings the junction rise down to ~20°C, a much safer margin.
+
 The "dropout voltage" is the minimum Vin - Vout the regulator can sustain while keeping output in regulation. The AMS1117-3.3, a ubiquitous cheap LDO, has a 1.0V dropout — it needs at least 4.3V in to produce a stable 3.3V. The AP2112-3.3 drops out at just 250mV and draws only 55µA quiescent current, making it far better suited for battery-powered designs where every milliamp matters.
+
+## Output Capacitor Stability
+
+Not all ceramic capacitors are suitable for every LDO. Many older LDO designs rely on a minimum amount of equivalent series resistance (ESR) in the output capacitor for loop stability. A very low-ESR ceramic capacitor (often below 10 milliohms) can push the regulator into oscillation, producing ripple at hundreds of kilohertz on what should be a clean rail. Tantalum capacitors, with ESR typically in the 100–500 milliohm range, naturally satisfy this requirement. Newer LDO families — including the AP2112 and MCP1700 — are explicitly designed for ceramic capacitor stability, specified down to 1µF X5R output capacitance with no minimum ESR. Always verify the LDO datasheet's capacitor requirements before selecting output components.
 
 ## Switching Regulator Basics
 
-Switching regulators use an inductor and high-frequency switching (typically 500kHz–2MHz) to convert voltages with 85–95% efficiency. A buck converter steps voltage down; a boost converter steps it up; a buck-boost handles both directions. The MP2359 is a compact buck converter that converts 12V to 3.3V at up to 1.2A with roughly 90% efficiency — dissipating only ~440mW versus the 10.4W an LDO would waste at the same operating point.
+Switching regulators use an inductor and high-frequency switching (typically 500kHz–2MHz) to convert voltages with 85–95% efficiency. A buck converter steps voltage down; a boost converter steps it up; a buck-boost handles both directions. The TPS563200 is a widely used synchronous buck converter that delivers up to 3A at 3.3V from inputs up to 17V, achieving roughly 90% efficiency at moderate loads — dissipating only ~440mW versus the 10.4W an LDO would waste at the same operating point. Its integrated high-side and low-side FETs simplify layout, making it a common choice for cost-sensitive designs.
 
 The TPS63001 is a buck-boost converter commonly used with single-cell LiPo batteries. It maintains a 3.3V output whether the battery is at 4.2V (freshly charged) or 2.5V (near cutoff), seamlessly transitioning between buck and boost modes as the cell discharges.
+
+## Efficiency Curve Shape
+
+Switching regulator efficiency is not a single number — it varies with load current. At moderate-to-high loads (roughly 10–80% of rated output), efficiency peaks in the 85–95% range. At very light loads (below a few milliamps), switching losses and quiescent draw dominate, and efficiency can drop to 30–50%. Some converters offer pulse-frequency modulation (PFM) or pulse-skip mode at light loads to reduce switching losses, maintaining 70–80% efficiency down into the microamp range. By contrast, an LDO converting 3.7V to 3.3V achieves a fixed efficiency of Vout/Vin = 89%, regardless of load current — making LDOs the more efficient choice when the dropout is small and the load is light.
 
 ## Noise Characteristics
 
@@ -48,3 +58,4 @@ For low current draw (under ~300mA) with a small Vin-Vout differential, an LDO i
 - An ADC reading that shows periodic noise at a fixed frequency (e.g., 500kHz ripple) commonly traces back to a switching regulator on the same board — adding an LC filter or replacing the analog supply with an LDO resolves it
 - A regulator that runs warm under light load but becomes too hot to touch at full system current is dissipating more than the package can handle — switching to a buck converter or adding thermal relief copper is the corrective step
 - A circuit that draws 200mA continuously from a CR2032 coin cell through an LDO and dies in hours instead of days is dominated by the LDO's operating current plus the wasted heat — a micropower buck converter dramatically extends runtime
+- An LDO output that oscillates at 200–400kHz when loaded, visible on a scope as clean ripple rather than random noise, typically indicates that the output capacitor ESR is too low for the regulator's compensation loop — replacing the ceramic output cap with a tantalum, or switching to a ceramic-stable LDO, resolves the oscillation

@@ -1,10 +1,10 @@
 ---
-title: "Choosing the Right MCU"
+title: "Choosing the Right Platform"
 weight: 10
 bookCollapseSection: true
 ---
 
-# Choosing the Right MCU
+# Choosing the Right Platform
 
 Selecting a microcontroller is the first architectural decision in any embedded project, and it constrains everything that follows — peripheral availability, power budget, firmware complexity, and long-term supply chain risk. The choice is rarely about finding the "best" chip; it's about finding the right fit for a specific set of constraints. A sensor node that sleeps for 99% of its life has different needs than a motor controller running tight control loops, and both differ from a USB HID device that needs specific peripheral support.
 

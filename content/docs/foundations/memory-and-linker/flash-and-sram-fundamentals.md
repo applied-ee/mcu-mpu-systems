@@ -23,10 +23,48 @@ Most Cortex-M firmware executes directly from flash (XIP — execute in place). 
 
 Peripherals like GPIO, UART, SPI, and timers are controlled through registers mapped into the address space. On STM32, peripheral registers start at 0x40000000. Writing to a GPIO output register is just a store instruction to a specific address. This means pointer errors in firmware can accidentally write to peripheral registers, causing hardware behavior that appears completely unrelated to the buggy code.
 
+## The `volatile` Keyword and Peripheral Access
+
+Any pointer to a memory-mapped peripheral register must be declared `volatile`. Without it, the compiler is free to assume the pointed-to value only changes when software writes to it — an assumption that breaks entirely for hardware registers where the device itself updates bits asynchronously.
+
+```c
+/* Without volatile — compiler may optimize away the read */
+uint32_t *status = (uint32_t *)0x40011000;
+while (*status & 0x01);  // May become infinite loop or be removed
+
+/* Correct — volatile forces every access to hit the bus */
+volatile uint32_t *status = (volatile uint32_t *)0x40011000;
+while (*status & 0x01);  // Reads hardware register each iteration
+```
+
+At higher optimization levels (`-O2`, `-Os`), the compiler will often hoist the non-volatile read out of the loop and test a stale copy in a register forever. Vendor CMSIS headers declare all peripheral struct members as `__IO` (a typedef for `volatile`), which is why direct register access through the vendor-provided structs works correctly.
+
+## Read-Modify-Write Hazards
+
+Applying a read-modify-write pattern (e.g., `|=` or `&=~`) to a peripheral register introduces two hazards. First, the read step fetches the current state of all bits, including status flags that may be "write-1-to-clear" (W1C). Writing those bits back can inadvertently acknowledge or clear a pending interrupt flag that firmware has not yet processed. Second, if an interrupt preempts the sequence between the read and the write, the interrupt handler's own register modification is overwritten when the interrupted code completes its write.
+
+To avoid these issues, many peripherals provide dedicated SET and CLEAR registers. On STM32 GPIOs, the BSRR (Bit Set/Reset Register) allows setting or clearing individual output pins with a single atomic write — no read step required. Timer and DMA peripherals similarly offer flag-clear registers that accept only the specific bits to clear.
+
+## Bit-Banding (Cortex-M3/M4)
+
+Cortex-M3 and M4 devices include a bit-band feature that maps each bit in the SRAM and peripheral regions to a full 32-bit alias word. Writing 0 or 1 to the alias word atomically clears or sets the corresponding bit in the target register, eliminating the read-modify-write sequence entirely. The alias address formula is:
+
+```
+alias_addr = alias_base + (byte_offset × 32) + (bit_number × 4)
+```
+
+For SRAM (base 0x20000000, alias base 0x22000000) and peripherals (base 0x40000000, alias base 0x42000000), this provides atomic bit-level access without disabling interrupts. Bit-banding is not available on Cortex-M0/M0+ or Cortex-M7 parts.
+
+## DMA Buffer Alignment
+
+Many DMA controllers impose alignment requirements on source and destination buffers. On Cortex-M0 through M4, 4-byte (word) alignment is typically sufficient. On Cortex-M7 devices with data caches, DMA buffers should be aligned to the cache line size — typically 32 bytes — to prevent cache coherency issues during DMA transfers. Using `__attribute__((aligned(32)))` on buffer declarations, combined with cache maintenance operations (`SCB_CleanDCache_by_Addr` / `SCB_InvalidateDCache_by_Addr`), ensures that the CPU and DMA controller see consistent data.
+
 ## Tips
 
 - Check the flash wait-state table in the datasheet when selecting clock speed — running at the maximum clock often means 5-7 wait states, which the prefetch unit may not fully hide for all access patterns.
 - Place DMA buffers in main SRAM, not CCM — CCM on STM32F4 is not on the DMA bus, and DMA transfers targeting CCM will silently produce garbage.
+- Prefer SET/CLEAR registers (BSRR for GPIO, flag-clear registers for timers) over read-modify-write sequences on peripheral registers — this avoids both W1C flag hazards and interrupt-preemption races.
+- On Cortex-M7, align DMA buffers to 32 bytes and perform explicit cache maintenance before and after DMA transfers — skipping this step produces sporadic data corruption that is extremely difficult to reproduce.
 - Use `__attribute__((section(".ccmram")))` in GCC to place latency-critical variables in CCM when available.
 - Keep flash constants (lookup tables, font data, string literals) in .rodata rather than copying them to SRAM — flash reads are free at low clock speeds and only mildly penalized at high speeds.
 - Run `arm-none-eabi-size` after every build to track flash and SRAM usage trends before they become emergencies.

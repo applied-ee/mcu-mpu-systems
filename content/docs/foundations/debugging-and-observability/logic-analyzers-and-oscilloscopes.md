@@ -11,9 +11,15 @@ Software debugging reveals what firmware thinks is happening. Logic analyzers an
 
 A logic analyzer captures digital signals and decodes them into human-readable protocol transactions. The Saleae Logic Pro 8 (8 channels, 500 MS/s digital, $480) and Logic 8 (8 channels, 100 MS/s, $200) are the most common bench tools for embedded work. Budget alternatives using Cypress FX2-based clones ($10-15) work with the open-source sigrok/PulseView software at sample rates up to 24 MHz. For SPI decoding, sample at least 4x the clock rate — a 10 MHz SPI bus needs 40 MS/s or higher. I2C, running at 100-400 kHz, is comfortably captured at 1-2 MS/s. Protocol decoders overlay the raw waveform with decoded bytes, addresses, and ACK/NACK status, making it straightforward to confirm whether the MCU is sending what the firmware intends.
 
+A typical SPI decode setup requires connecting four logic analyzer channels: MOSI, MISO, SCK, and CS. In the decoder configuration, the clock polarity (CPOL) and clock phase (CPHA) must match the peripheral's SPI mode — Mode 0 (CPOL=0, CPHA=0) samples on the rising edge with clock idle low, while Mode 3 (CPOL=1, CPHA=1) samples on the falling edge with clock idle high. Setting these incorrectly produces decoded bytes that are bit-shifted or completely wrong, even though the raw waveform looks correct. Assigning CS as the frame enable signal allows the decoder to delineate individual transactions and ignore bus activity between assertions.
+
 ## Oscilloscopes for Signal Quality
 
 Where logic analyzers see only high/low states, oscilloscopes show the analog reality: rise times, overshoot, ringing, and noise. A 100 MHz bandwidth scope covers most embedded work up to 50 MHz signal frequencies (the Nyquist rule applies to scope bandwidth as well). Probe compensation matters — an uncompensated 10x probe introduces measurement error that looks like signal distortion. For I2C and SPI signals, the oscilloscope reveals whether signal edges are clean, whether pull-up resistor values produce adequate rise times (I2C spec requires <300 ns rise time at 400 kHz), and whether bus capacitance is within limits.
+
+**Probe compensation** is performed using the 1 kHz square wave test point present on every oscilloscope's front panel. Connecting a 10x probe to this test point and observing the waveform reveals compensation state: an overcompensated probe shows overshoot on edges, an undercompensated probe shows rounded corners, and a correctly compensated probe shows clean square edges. The trimmer capacitor on the probe body (or at the BNC connector) is adjusted with a non-metallic tool until the waveform is square. This calibration should be repeated whenever a probe is moved between scope channels or when the ambient temperature changes significantly.
+
+**Bandwidth and rise time** are related by the approximation BW x t_rise = 0.35, which holds for a single-pole response characteristic of most analog oscilloscope front ends. A 100 MHz scope can faithfully measure rise times down to approximately 3.5 ns. Faster edges appear slower than they actually are — the scope's own response time dominates the measurement. Choosing scope bandwidth based on signal edge rates rather than signal frequency ensures accurate waveform capture: a 10 MHz SPI clock with 2 ns edges requires at least 175 MHz of bandwidth to measure the edge shape accurately.
 
 ## Power Rail Analysis
 
@@ -30,6 +36,8 @@ Single-shot trigger mode captures a one-time event — essential for debugging s
 - Save logic analyzer captures to session files before changing probe connections — having a known-good reference capture makes future comparison debugging much faster.
 - Set the logic analyzer's voltage threshold to match the target logic family — 1.4 V for 3.3 V LVCMOS, 0.8 V for 1.8 V logic — to avoid missed edges or false triggers.
 - Attach scope ground leads as short as physically possible; the standard 15 cm ground clip acts as an antenna and introduces ringing artifacts that can be mistaken for real signal problems.
+- Run probe compensation before every measurement session — even moving a probe from CH1 to CH2 on the same scope can change the compensation due to different input capacitances.
+- When decoding a protocol, verify the decoder settings against the peripheral datasheet — the most common source of "wrong data" in captures is a CPOL/CPHA or bit-order mismatch in the analyzer configuration, not a hardware problem.
 
 ## Caveats
 
@@ -38,6 +46,7 @@ Single-shot trigger mode captures a one-time event — essential for debugging s
 - **Long ground leads on oscilloscope probes introduce inductance** — The resulting LC resonance creates ringing artifacts on fast edges that appear to be real signal problems; use the spring-tip ground contact for anything above 10 MHz.
 - **Logic analyzers with insufficient sample rate alias fast signals** — A 24 MS/s analyzer capturing a 10 MHz SPI clock will show a distorted waveform and may decode data incorrectly.
 - **AC-coupled scope inputs block DC information** — Power rail analysis with AC coupling shows ripple accurately but hides the actual voltage level; verify the DC level separately with DC coupling or a multimeter.
+- **An uncompensated probe distorts every measurement** — The distortion looks like real signal behavior (overshoot or slow rise), leading to incorrect conclusions about signal integrity. Always compensate before diagnosing edge quality.
 
 ## In Practice
 
@@ -46,3 +55,4 @@ Single-shot trigger mode captures a one-time event — essential for debugging s
 - A power rail that measures a clean 3.3 V on a multimeter but causes intermittent MCU resets reveals itself on the scope as 300+ mV transient dips during high-current events like radio transmission or motor actuation.
 - A UART signal that appears correct on the scope but produces framing errors on the receiver indicates a baud rate tolerance issue — crystal-less MCU oscillators (internal RC) can drift 2-5%, enough to corrupt bytes at 115200 baud and above.
 - Intermittent signal glitches visible only with single-shot triggering and persistence mode often trace back to floating inputs, missing pull-up/pull-down resistors, or inadequate decoupling on nearby switching regulators.
+- Measuring a rise time of 4 ns on a 100 MHz scope actually means the real rise time is faster — the scope's 3.5 ns response is dominating. The true rise time can be estimated as sqrt(t_measured^2 - t_scope^2), giving approximately 1.9 ns in this case.
