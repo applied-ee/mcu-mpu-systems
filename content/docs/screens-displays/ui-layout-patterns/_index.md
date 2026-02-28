@@ -6,7 +6,7 @@ bookCollapseSection: true
 
 # UI Layout Patterns
 
-Designing usable interfaces with limited pixels and limited input. Building a UI for a 128x64 OLED or a 240x320 TFT is nothing like web or mobile design — every pixel counts, input is usually a button or rotary encoder, and there's no layout engine doing the work for you. But with careful information hierarchy, sensible navigation, and a few proven patterns, small screens can communicate a surprising amount of information clearly.
+Designing usable interfaces with limited pixels and limited input. Building a UI for a 128x64 OLED or a 240x320 TFT is nothing like web or mobile design — every pixel counts, input is usually a button or rotary encoder, and there's no layout engine doing the work automatically. But with careful information hierarchy, sensible navigation, and a few proven patterns, small screens can communicate a surprising amount of information clearly.
 
 ## What This Section Covers
 

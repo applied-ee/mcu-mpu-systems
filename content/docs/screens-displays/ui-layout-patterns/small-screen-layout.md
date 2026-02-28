@@ -9,7 +9,7 @@ Designing for a 128x64 OLED or a 240x320 TFT is nothing like designing for a pho
 
 ## Information Hierarchy
 
-The first question for any small screen UI is: what does the user need to see *right now*? On a 128x64 display, you might fit 4 lines of medium text or 8 lines of tiny text. That's your entire information budget. Prioritize ruthlessly:
+The first question for any small screen UI is: what needs to be visible *right now*? On a 128x64 display, roughly 4 lines of medium text fit or 8 lines of tiny text. That's the entire information budget. Prioritize ruthlessly:
 
 - **Primary value**: the one number or status the user cares about most, displayed large and prominently
 - **Secondary context**: units, labels, or supporting data, displayed smaller
@@ -19,19 +19,19 @@ A common mistake is trying to show everything at once. A temperature sensor read
 
 ## Status Bar Pattern
 
-Many embedded UIs dedicate the top (or bottom) 8-16 pixels as a persistent status bar showing system-level info: battery level, wireless connectivity, current mode, or a clock. The remaining screen area shows page-specific content. This pattern works well because it gives users constant orientation — they always know the system state without navigating anywhere.
+Many embedded UIs dedicate the top (or bottom) 8-16 pixels as a persistent status bar showing system-level info: battery level, wireless connectivity, current mode, or a clock. The remaining screen area shows page-specific content. This pattern works well because it gives users constant orientation — the system state is always visible without navigating anywhere.
 
 On a 128x64 OLED, an 8-pixel status bar leaves 56 pixels for content — still enough for 3-4 lines of readable text. Draw a 1-pixel horizontal line to visually separate the status bar from the content area.
 
 ## Multi-Page / Tab Navigation
 
-When content doesn't fit on one screen, break it into pages that the user cycles through with a button press or rotary encoder. Common patterns:
+When content doesn't fit on one screen, break it into pages that pages are cycled through with a button press or rotary encoder. Common patterns:
 
 - **Page indicator dots**: small circles at the bottom or side showing which page is active (like mobile app onboarding screens)
 - **Page number**: "2/5" in a corner
 - **Tab-style header**: the active section name at the top, changing as the user navigates
 
-Keep the navigation model simple. "Press button to go to next page" is easier to learn than "short press for next, long press for back, double press for home." Users will learn complex navigation eventually, but in practice, most embedded UIs work best with minimal input.
+Keep the navigation model simple. "Press button to go to next page" is easier to learn than "short press for next, long press for back, double press for home." Complex navigation is learnable, but in practice, most embedded UIs work best with minimal input.
 
 ## Scrolling Lists
 
@@ -46,7 +46,7 @@ The approach shifts with display resolution:
 - **240x240 / 240x320** — enough room for actual UI design with buttons, icons, multiple data fields, and even small charts
 - **320x480** — approaching phone-like layouts; multi-column data, detailed charts, image display
 
-The temptation on larger displays is to fill all the space. Resist it — whitespace (or rather, blackspace on an OLED) improves readability and makes the important elements stand out.
+The temptation on larger displays is to fill all the space. Restraint helps — whitespace (or rather, blackspace on an OLED) improves readability and makes the important elements stand out.
 
 ## Tips
 
@@ -57,7 +57,7 @@ The temptation on larger displays is to fill all the space. Resist it — whites
 ## Caveats
 
 - **128x32 displays are too small for status bars** — Dedicating 8 pixels to a status bar leaves only 24 pixels (3 rows of tiny text) for content. On these displays, use the full screen for content and show status information on a separate page
-- **Font size sets the information density ceiling** — On a 128x64 display, readable text at 8px height gives you 8 lines. At 16px, you get 4 lines. The font choice is an architectural decision, not just an aesthetic one
+- **Font size sets the information density ceiling** — On a 128x64 display, readable text at 8px height gives 8 lines. At 16px, 4 lines fit. The font choice is an architectural decision, not just an aesthetic one
 - **Page-based navigation hides information** — Users can only see one page at a time. If critical information spans multiple pages, users must remember or navigate back and forth. Minimize cross-page dependencies
 
 ## In Practice

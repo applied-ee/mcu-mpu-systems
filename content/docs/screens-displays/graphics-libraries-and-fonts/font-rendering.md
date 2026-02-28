@@ -5,7 +5,7 @@ weight: 20
 
 # Font Rendering on Embedded Displays
 
-Text is the most common thing displayed on embedded screens, and the font rendering approach you choose directly affects readability, aesthetics, and memory consumption. There's a surprising amount of depth here once you move beyond the default 5x7 pixel font that ships with every beginner library.
+Text is the most common thing displayed on embedded screens, and the font rendering approach directly affects readability, aesthetics, and memory consumption. There's a surprising amount of depth here beyond the default 5x7 pixel font that ships with every beginner library.
 
 ## Bitmap Fonts
 
@@ -28,15 +28,15 @@ Getting custom fonts onto an MCU typically involves converting a TrueType or Ope
 - **LVGL font converter** — web tool or CLI that converts TTF to LVGL's optimized format with optional AA, compression, and character range selection
 - **Processing createFont** / **vlw converter** — generates smooth fonts for TFT_eSPI
 
-The key decision during conversion is which characters to include. A full Unicode font would be enormous. Most converters let you specify a range (ASCII 32-126, plus maybe degree symbol and a few others). For projects needing CJK or other large character sets, you'll need to carefully manage which glyphs are included to control flash usage.
+The key decision during conversion is which characters to include. A full Unicode font would be enormous. Most converters allow specifying a range (ASCII 32-126, plus maybe degree symbol and a few others). For projects needing CJK or other large character sets, carefully managing which glyphs are included is essential to control flash usage.
 
 ## Proportional vs Monospace
 
-Bitmap fonts on embedded displays are often monospace (every character the same width) because it simplifies rendering and layout — you can calculate text positions by multiplying character count by width. Proportional fonts (where 'i' is narrower than 'M') look better but require kerning tables and width lookups, which add code complexity and a small performance cost. For data-heavy displays (sensor readings, tables), monospace is often preferable anyway. For polished UIs with natural-language text, proportional fonts are worth the effort.
+Bitmap fonts on embedded displays are often monospace (every character the same width) because it simplifies rendering and layout — text positions can be calculated by multiplying character count by width. Proportional fonts (where 'i' is narrower than 'M') look better but require kerning tables and width lookups, which add code complexity and a small performance cost. For data-heavy displays (sensor readings, tables), monospace is often preferable anyway. For polished UIs with natural-language text, proportional fonts are worth the effort.
 
 ## Memory Budget
 
-Font memory adds up faster than you'd expect. Here's a rough guide:
+Font memory adds up faster than expected. Here's a rough guide:
 
 - Small bitmap (8px height, ASCII only): ~1KB
 - Medium bitmap (16px, ASCII): ~3-5KB
@@ -44,22 +44,22 @@ Font memory adds up faster than you'd expect. Here's a rough guide:
 - Anti-aliased smooth font (24px, ASCII): ~15-25KB
 - CJK font subset (1000 characters, 16px): ~30-50KB
 
-On MCUs with limited flash, font data can become the largest single asset. It's worth auditing which fonts you actually use and trimming unused character ranges.
+On MCUs with limited flash, font data can become the largest single asset. Auditing which fonts are actually used and trimming unused character ranges is worth the effort.
 
 ## Tips
 
-- Include only the character ranges you actually use — trimming from full ASCII to digits-and-a-few-symbols can cut font size dramatically
+- Include only the character ranges actually needed — trimming from full ASCII to digits-and-a-few-symbols can cut font size dramatically
 - Use monospace fonts for data-heavy displays (sensor readings, tables) — they simplify layout calculations and align columns naturally
 - Test font readability on the actual display at viewing distance before committing to a size — fonts that look fine on a monitor may be illegible on a 0.96" OLED
 
 ## Caveats
 
 - **Anti-aliased fonts only help on displays with sufficient color depth** — On monochrome OLEDs, AA fonts offer no benefit and waste memory. They're for color TFTs and grayscale displays
-- **Font conversion is a one-way process** — Once a TTF is converted to a bitmap font format, you can't easily change the size or style. Regenerate from the source TTF when you need adjustments
+- **Font conversion is a one-way process** — Once a TTF is converted to a bitmap font format, changing the size or style isn't straightforward. Regenerate from the source TTF when adjustments are needed
 - **CJK and Unicode fonts consume enormous flash** — Even a modest subset of 1000 CJK characters at 16px can exceed 30KB. Full Unicode coverage is impractical on most MCUs
 
 ## In Practice
 
 - Text that appears blocky or aliased on a color TFT suggests bitmap fonts are being used where anti-aliased fonts would improve quality — check if the library and font format support AA rendering
-- Font glyphs that render with wrong spacing or overlap usually indicate a mismatch between the font metadata (glyph widths, baseline) and what the library expects — regenerate the font with the correct conversion tool for your library
+- Font glyphs that render with wrong spacing or overlap usually indicate a mismatch between the font metadata (glyph widths, baseline) and what the library expects — regenerate the font with the correct conversion tool for the target library
 - A build that suddenly exceeds flash limits after adding a font is almost always because the full character set was included — restrict to the needed range during conversion

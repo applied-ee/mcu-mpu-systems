@@ -8,7 +8,7 @@ bookCollapseSection: true
 
 Displays that look like paper and use power like paper. E-Ink (electrophoretic) displays hold their image with zero power, are readable in direct sunlight, and excel in applications where content changes infrequently — weather stations, price tags, room signs, low-power dashboards. The tradeoff is refresh speed: updating takes seconds, not milliseconds, and the full-refresh flash is a visual distraction.
 
-Working with E-Ink requires a different mental model than LCD or OLED: you're not rendering frames, you're committing images. Understanding refresh modes, ghosting behavior, and the waveform tables that control particle movement is essential for getting good results.
+Working with E-Ink requires a different mental model than LCD or OLED: it's not about rendering frames — it's about committing images. Understanding refresh modes, ghosting behavior, and the waveform tables that control particle movement is essential for getting good results.
 
 ## What This Section Covers
 

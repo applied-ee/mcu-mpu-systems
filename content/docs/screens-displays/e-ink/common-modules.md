@@ -15,9 +15,9 @@ Waveshare model numbers encode useful information: the size in inches and a vers
 
 ## Good Display (GDEH / GDEW / DEPG Series)
 
-Good Display is one of the largest E-Ink panel OEMs, and you'll encounter their panels even in modules branded by other companies. Their model numbering follows a pattern: `GDEH` prefix for older series, `GDEW` for newer, and `DEPG` for their latest generation. The numbers typically encode the size and color capability. Good Display panels often have better documentation on waveform LUTs than Waveshare, which matters if you're doing custom LUT work.
+Good Display is one of the largest E-Ink panel OEMs, and their panels appear even in modules branded by other companies. Their model numbering follows a pattern: `GDEH` prefix for older series, `GDEW` for newer, and `DEPG` for their latest generation. The numbers typically encode the size and color capability. Good Display panels often have better documentation on waveform LUTs than Waveshare, which matters for custom LUT work.
 
-Many "generic" E-Ink breakout boards on AliExpress use Good Display panels, so knowing the GDEW/DEPG model number helps you find the right datasheet and driver even when the seller's listing is vague.
+Many "generic" E-Ink breakout boards on AliExpress use Good Display panels, so knowing the GDEW/DEPG model number helps locate the right datasheet and driver even when the seller's listing is vague.
 
 ## SPI Wiring
 
@@ -28,7 +28,7 @@ Nearly all E-Ink modules use SPI with a few extra control pins:
 - **RST** — hardware reset
 - **BUSY** — output from the display indicating it's still processing a refresh
 
-The `BUSY` pin is unique to E-Ink and critical. After sending a refresh command, the controller takes seconds to physically update the display. The BUSY pin goes high (or low, depending on the module) during this time. You must wait for BUSY to signal completion before sending the next command, or the update will fail or produce corrupted output. Polling the BUSY pin in a loop is the standard approach.
+The `BUSY` pin is unique to E-Ink and critical. After sending a refresh command, the controller takes seconds to physically update the display. The BUSY pin goes high (or low, depending on the module) during this time. The firmware must wait for BUSY to signal completion before sending the next command, or the update will fail or produce corrupted output. Polling the BUSY pin in a loop is the standard approach.
 
 ## Typical Resolutions and Colors
 
@@ -48,13 +48,13 @@ GxEPD2 (Arduino/ESP) is the most comprehensive E-Ink library, supporting dozens 
 
 ## Tips
 
-- Always check the exact module version (e.g., Waveshare 2.13" V2 vs V4) before selecting a driver — different versions use different controllers and are not interchangeable
-- Use GxEPD2 as the starting point for Arduino/ESP projects; it supports the widest range of panels and handles the BUSY pin polling automatically
-- For the best documentation on waveform LUTs, look at Good Display datasheets rather than Waveshare — Good Display is often the actual panel OEM
+- The exact module version matters (e.g., Waveshare 2.13" V2 vs V4) — different versions use different controllers and are not interchangeable
+- GxEPD2 is the best starting point for Arduino/ESP projects — it supports the widest range of panels and handles BUSY pin polling automatically
+- For the best waveform LUT documentation, Good Display datasheets are more detailed than Waveshare — Good Display is often the actual panel OEM
 
 ## Caveats
 
-- **The BUSY pin is not optional** — Unlike TFT displays where you can fire-and-forget commands, E-Ink requires waiting for the BUSY signal after every refresh. Ignoring it produces corrupted or incomplete updates
+- **The BUSY pin is not optional** — Unlike TFT displays where commands can be fire-and-forget commands, E-Ink requires waiting for the BUSY signal after every refresh. Ignoring it produces corrupted or incomplete updates
 - **Module versions matter more than module size** — A Waveshare 2.13" V2 uses a completely different controller than a V4. Using the wrong driver version produces nothing on screen
 - **Large E-Ink panels (7.5"+) need separate controller boards** — They require more RAM than a typical MCU can provide and often use an IT8951 controller HAT that communicates over SPI or I²C at a higher level of abstraction
 

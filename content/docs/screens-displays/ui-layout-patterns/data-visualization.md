@@ -11,7 +11,7 @@ Displaying raw numbers on a screen is useful, but visualizing data as charts, ga
 
 A sparkline is a minimal line chart without axes or labels — just the data trend rendered as a thin line across a small area. It's perfect for showing "what has this value been doing recently?" in a compact space. Implementation is straightforward: keep a circular buffer of N recent values (where N equals the pixel width of the sparkline), scale the values to the pixel height, and draw a line connecting adjacent points.
 
-Scaling is the key detail: map your data range to the pixel range. If your temperature readings range from 20°C to 30°C and your sparkline area is 40 pixels tall, each degree equals 4 pixels. You can either use a fixed range (good when you know the expected bounds) or auto-scale to the min/max of the current buffer (good for exploration, but can make small variations look like dramatic swings).
+Scaling is the key detail: map the data range to the pixel range. If temperature readings range from 20°C to 30°C and the sparkline area is 40 pixels tall, each degree equals 4 pixels. A fixed range works well when the expected bounds are known; auto-scaling to the min/max of the current buffer (good for exploration, but can make small variations look like dramatic swings).
 
 ## Bar Charts
 
@@ -21,7 +21,7 @@ For a progress bar or level indicator, a single bar with a filled portion and an
 
 ## Gauges
 
-A semicircular or arc gauge gives an analog-meter feel that's immediately readable. Drawing an arc gauge involves some trigonometry: for each angular position, compute the (x, y) endpoint using `sin()` and `cos()`, then draw a line from the center (or a tick mark at the edge). Most libraries don't have a native "draw arc" function, so you build it from line segments or individual pixels.
+A semicircular or arc gauge gives an analog-meter feel that's immediately readable. Drawing an arc gauge involves some trigonometry: for each angular position, compute the (x, y) endpoint using `sin()` and `cos()`, then draw a line from the center (or a tick mark at the edge). Most libraries don't have a native "draw arc" function, so it's built from line segments or individual pixels.
 
 For resource-constrained MCUs, pre-computing a lookup table of sin/cos values (even just 90 entries for a quarter circle) avoids runtime floating-point math. Or use integer-only approximations — for a gauge with 30-50 angular positions, the precision requirements are very low.
 
@@ -45,13 +45,13 @@ The core math for any visualization is mapping data values to pixel coordinates:
 pixel = (value - data_min) * (pixel_max - pixel_min) / (data_max - data_min) + pixel_min
 ```
 
-Use integer arithmetic where possible: multiply before dividing to maintain precision, and watch for overflow on 16-bit platforms. For Y-axis mapping, remember that pixel coordinates typically increase downward, so you'll need to invert: `pixel_y = pixel_max - scaled_value`.
+Use integer arithmetic where possible: multiply before dividing to maintain precision, and watch for overflow on 16-bit platforms. For Y-axis mapping, remember that pixel coordinates typically increase downward, so the value needs inverting: `pixel_y = pixel_max - scaled_value`.
 
-Fixed-point math (e.g., scaling by 256 and shifting right by 8) is a practical alternative to floating point when you need fractional precision without the FPU overhead.
+Fixed-point math (e.g., scaling by 256 and shifting right by 8) is a practical alternative to floating point when fractional precision is needed without the FPU overhead.
 
 ## Tips
 
-- Use a fixed data range for sparklines and gauges when the expected bounds are known — auto-scaling makes small noise look like dramatic changes
+- A fixed data range for sparklines and gauges works best when the expected bounds are known — auto-scaling makes small noise look like dramatic changes
 - For bar charts on small displays, include a 1-pixel gap between bars for visual clarity — solid adjacent bars are harder to distinguish, especially on monochrome screens
 - Multiply before dividing in integer scaling math to preserve precision, and use 32-bit intermediates to avoid overflow on 16-bit platforms
 
@@ -59,7 +59,7 @@ Fixed-point math (e.g., scaling by 256 and shifting right by 8) is a practical a
 
 - **Auto-scaling sparklines can be misleading** — If the data range is narrow (e.g., temperature varying by 0.5°C), auto-scaling magnifies noise into what looks like significant variation. Fixed ranges prevent this at the cost of reduced visual resolution for small changes
 - **Y-axis is inverted in pixel coordinates** — Screen coordinates increase downward, but data values typically increase upward. Forgetting to invert produces upside-down charts
-- **Trigonometric functions for gauge rendering are expensive without an FPU** — Pre-compute a lookup table of sin/cos values for the number of angular positions you need rather than calling `sin()` and `cos()` in the draw loop
+- **Trigonometric functions for gauge rendering are expensive without an FPU** — Pre-compute a lookup table of sin/cos values for the number of angular positions needed rather than calling `sin()` and `cos()` in the draw loop
 
 ## In Practice
 

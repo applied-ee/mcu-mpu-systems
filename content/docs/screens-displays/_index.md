@@ -6,7 +6,7 @@ bookCollapseSection: true
 
 # Screens & Displays
 
-Getting pixels in front of a user. Displays are often the most visible part of an embedded project — literally — and the choice of display technology shapes the UI, the power budget, the bus configuration, and the firmware complexity. Character LCDs, monochrome OLEDs, color TFTs, and E-Ink panels each bring different strengths and constraints, and picking the right one depends on what you're showing, how often it changes, and how much power you can spend.
+Getting pixels in front of a user. Displays are often the most visible part of an embedded project — literally — and the choice of display technology shapes the UI, the power budget, the bus configuration, and the firmware complexity. Character LCDs, monochrome OLEDs, color TFTs, and E-Ink panels each bring different strengths and constraints, and picking the right one depends on what gets shown, how often it changes, and how much power is available.
 
 This section covers the major display technologies used in MCU and MPU projects, from the humble HD44780 character LCD through high-refresh color TFTs, along with the graphics libraries, font rendering strategies, and UI layout patterns needed to put useful information on screen.
 

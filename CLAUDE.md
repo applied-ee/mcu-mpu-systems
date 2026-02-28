@@ -55,8 +55,9 @@ weight: 10
 
 - **Evergreen entries**: Entries get revised and expanded over time; they are not dated posts
 - **No chronological structure**: No dates in filenames or frontmatter unless documenting a specific experiment with a date-sensitive result
-- **Exploratory tone**: Write as someone learning, not lecturing; include uncertainty, questions, and corrections
-- **Practical focus**: Prefer bench experience, real measurements, and working circuits over pure theory
+- **Neutral voice**: No first-person (*I*, *we*) or second-person (*you*, *your*). Use tool-centric, observation-oriented phrasing. See `styleguide.md` for full voice rules and preferred framing.
+- **Practical focus**: Prefer bench experience, real measurements, and working firmware over pure theory
+- **Standard L2 sections**: Tips, Caveats, In Practice — names and intent are fixed (see `styleguide.md`)
 - **Entry types**: Concepts, procedures, experiments, patterns, gotchas — no formal taxonomy required, just pick what fits
 
 ## Glossary & Tooltip System

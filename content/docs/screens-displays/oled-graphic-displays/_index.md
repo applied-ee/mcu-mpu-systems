@@ -6,9 +6,9 @@ bookCollapseSection: true
 
 # OLED Graphic Displays
 
-The step up from character LCDs. Small monochrome OLEDs — typically 128x64 or 128x32 pixels — give you full pixel-level control for graphics, custom fonts, and compact data visualizations while staying cheap and easy to wire. They're self-emitting (no backlight needed), have excellent contrast ratios, and work over I²C with just four wires, making them the go-to display for sensor readouts, debug output, and small status screens.
+The step up from character LCDs. Small monochrome OLEDs — typically 128x64 or 128x32 pixels — provide full pixel-level control for graphics, custom fonts, and compact data visualizations while staying cheap and easy to wire. They're self-emitting (no backlight needed), have excellent contrast ratios, and work over I²C with just four wires, making them the go-to display for sensor readouts, debug output, and small status screens.
 
-The tradeoff is that you now manage a framebuffer, think about pixel layout, and choose between controllers that look the same on the outside but behave differently in firmware.
+The tradeoff is that the firmware now manages a framebuffer, handles pixel layout, and choose between controllers that look the same on the outside but behave differently in firmware.
 
 ## What This Section Covers
 

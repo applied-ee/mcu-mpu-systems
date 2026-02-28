@@ -5,7 +5,7 @@ weight: 20
 
 # Full vs. Partial Refresh
 
-The refresh behavior of E-Ink displays is where most of the practical complexity lives. Understanding the difference between full and partial refresh — and the tradeoffs involved — is essential for building E-Ink projects that look good and don't degrade the display.
+The refresh behavior of E-Ink displays is where most of the practical complexity lives. Understanding the difference between full and partial refresh — and the tradeoffs involved — is essential for building E-Ink projects that look good and preserve display health.
 
 ## Full Refresh
 
@@ -21,7 +21,7 @@ The tradeoff is ghosting: faint remnants of previous images remain visible becau
 
 ## LUT Tables
 
-The waveform lookup tables (LUTs) are the core of E-Ink refresh behavior. They define the exact voltage sequence applied to each pixel during a refresh, and different LUTs produce different speed/quality tradeoffs. Some displays store LUTs in an on-board flash chip (OTP — one-time programmable); others allow uploading custom LUTs from the MCU. The latter gives you control over refresh behavior at the cost of complexity.
+The waveform lookup tables (LUTs) are the core of E-Ink refresh behavior. They define the exact voltage sequence applied to each pixel during a refresh, and different LUTs produce different speed/quality tradeoffs. Some displays store LUTs in an on-board flash chip (OTP — one-time programmable); others allow uploading custom LUTs from the MCU. The latter gives control over refresh behavior at the cost of complexity.
 
 Libraries like GxEPD2 often ship multiple LUT options: a "default" full-refresh LUT and a "fast" partial-refresh LUT. Some advanced users create custom LUTs tuned for their specific use case — for example, optimizing for text display rather than images, or tweaking timing for a specific operating temperature range.
 
@@ -31,7 +31,7 @@ Some newer E-Ink panels and controllers support a "fast mode" that can refresh i
 
 ## Tips
 
-- Use partial refresh for routine updates (sensor readings, clock) and full refresh when the entire screen changes (page navigation, mode switch)
+- Partial refresh suits routine updates (sensor readings, clock); full refresh is better when the entire screen changes (page navigation, mode switch)
 - Schedule a periodic full refresh every 10-30 partial updates to clear accumulated ghosting
 - Give the display time to settle between updates — rapid back-to-back partial refreshes degrade image quality faster
 
@@ -45,4 +45,4 @@ Some newer E-Ink panels and controllers support a "fast mode" that can refresh i
 
 - Ghosting that gradually worsens over time and clears after a full refresh is normal partial-refresh behavior — increase the full-refresh frequency if it's unacceptable
 - A display that partially updates correctly but leaves dark smears on white-to-black transitions likely needs a different partial-refresh waveform or longer pulse durations
-- Refresh that's much slower than expected at room temperature suggests the waveform LUT includes conservative timing for a wider temperature range — a custom LUT tuned for your operating range can improve this
+- Refresh that's much slower than expected at room temperature suggests the waveform LUT includes conservative timing for a wider temperature range — a custom LUT tuned for the operating range can improve this

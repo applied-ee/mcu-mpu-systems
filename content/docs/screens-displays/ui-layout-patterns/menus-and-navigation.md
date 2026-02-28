@@ -5,13 +5,13 @@ weight: 20
 
 # Menus & Navigation Patterns
 
-Once your embedded display shows more than a single static value, you need navigation — a way for users to access different screens, change settings, or trigger actions. The input devices on embedded projects (typically buttons and rotary encoders) are far more limited than a touchscreen, which makes the navigation design both more important and more constrained.
+Once an embedded display shows more than a single static value, navigation is needed — a way to access different screens, change settings, or trigger actions. The input devices on embedded projects (typically buttons and rotary encoders) are far more limited than a touchscreen, which makes the navigation design both more important and more constrained.
 
 ## Rotary Encoder + Button
 
 The rotary encoder with an integrated push button is the most versatile input device for small-screen UIs. Rotation scrolls through options, and the button confirms a selection. This maps naturally to list menus: rotate to highlight an item, press to enter. For value editing, the same pattern works: press to start editing a parameter, rotate to change the value, press to confirm.
 
-Rotary encoders generate quadrature signals on two pins, and the decoding needs debouncing — mechanical encoders are noisy. Hardware timers, pin-change interrupts with debounce logic, or a library that handles quadrature decoding are all common approaches. The encoder's "detent" positions (the clicks you feel) usually correspond to one state change per click, but some encoders produce 2 or 4 transitions per detent depending on the model. Getting this wrong means values jump by 2 or 4 per click, which is a common surprise.
+Rotary encoders generate quadrature signals on two pins, and the decoding needs debouncing — mechanical encoders are noisy. Hardware timers, pin-change interrupts with debounce logic, or a library that handles quadrature decoding are all common approaches. The encoder's "detent" positions (the clicks felt during rotation) usually correspond to one state change per click, but some encoders produce 2 or 4 transitions per detent depending on the model. Getting this wrong means values jump by 2 or 4 per click, which is a common surprise.
 
 ## Hierarchical Menus
 
@@ -47,25 +47,25 @@ On color displays, a colored highlight bar (e.g., blue background on the selecte
 
 ## Input Debouncing for UI
 
-Button debouncing is always important, but for UI navigation it has specific requirements. You want:
+Button debouncing is always important, but for UI navigation it has specific requirements. The key behaviors are:
 
 - **Short press detection**: single click to select or confirm (typically 50-200ms debounce)
 - **Long press detection**: press and hold for back/cancel or secondary actions (typically 500-1000ms threshold)
 - **Repeat-on-hold**: for encoders or buttons used to adjust values, holding should auto-repeat after an initial delay (useful for scrolling through long lists or changing numbers quickly)
 
-Getting the timing right is subjective and depends on user testing. Defaults around 50ms debounce, 500ms long-press threshold, and 200ms repeat interval work for most people, but these are worth exposing as configurable constants.
+Getting the timing right is subjective and depends on user testing. Defaults around 50ms debounce, 500ms long-press threshold, and 200ms repeat interval are reasonable starting points, but these are worth exposing as configurable constants.
 
 ## State Machine Approach
 
 The cleanest way to manage menu navigation in firmware is a state machine where each state corresponds to a screen or menu level. Input events (rotate CW, rotate CCW, short press, long press) trigger transitions between states. Each state has a draw function and an input handler. This separates the UI logic from the input handling and makes it straightforward to add new screens or menu items.
 
-Avoid deeply nested switch statements for menu logic — they get unmanageable fast. A table-driven approach (array of menu item structs with labels, child pointers, and action callbacks) scales much better.
+Deeply nested switch statements for menu logic get unmanageable fast. A table-driven approach (array of menu item structs with labels, child pointers, and action callbacks) scales much better.
 
 ## Tips
 
-- Use a table-driven menu definition (array of structs with label, parent, action) rather than hardcoded switch statements — adding menu items becomes a data change, not a code change
-- Expose timing constants (debounce, long-press threshold, repeat interval) as configurable values rather than magic numbers — they invariably need tuning during user testing
-- Include a "Back" item at the top of each submenu for single-button navigation — it's more discoverable than requiring users to learn a long-press gesture
+- A table-driven menu definition (array of structs with label, parent, action) scales better than hardcoded switch statements — adding menu items becomes a data change, not a code change
+- Timing constants (debounce, long-press threshold, repeat interval) should be configurable values rather than magic numbers — they invariably need tuning during user testing
+- A "Back" item at the top of each submenu aids single-button navigation — it's more discoverable than a long-press gesture
 
 ## Caveats
 
