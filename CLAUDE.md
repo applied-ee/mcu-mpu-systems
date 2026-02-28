@@ -7,9 +7,28 @@ This is a structured notebook on microcontroller and microprocessor systems — 
 ## Repository Structure
 
 - **Hugo static site** using the [hugo-book](https://github.com/alex-shpak/hugo-book) theme
-- Content lives in `content/docs/` organized into sections (TBD as content is added)
+- Content lives in `content/docs/` organized into ten L0 sections
 - Built with `make html` (runs `hugo --minify`)
 - Local dev server with `make server`
+
+## Section Structure
+
+Content uses a 3-level hierarchy: L0 (top sections) → L1 (subsections) → L2 (pages).
+
+| Weight | Directory | Title |
+|--------|-----------|-------|
+| 1 | `foundations/` | Foundations for Building Embedded Systems |
+| 2 | `digital-interfaces/` | Digital Interfaces & Peripheral Recipes |
+| 3 | `led-systems/` | LED Systems |
+| 4 | `sensor-integration/` | Sensor Integration Recipes |
+| 5 | `power-battery/` | Real-World Power + Battery Projects |
+| 6 | `networking/` | Networking & Connectivity |
+| 7 | `linux-embedded/` | Linux-Based Embedded Systems |
+| 8 | `audio-projects/` | Audio Projects |
+| 9 | `productionizing/` | Productionizing Projects |
+| 10 | `project-walkthroughs/` | Complete Project Walkthroughs |
+
+L0 and L1 directories use `bookCollapseSection: true` in their `_index.md` so they appear as collapsible items in the sidebar. L2 entries are leaf pages (`.md` files) inside L1 directories.
 
 ## Adding a New Entry
 
