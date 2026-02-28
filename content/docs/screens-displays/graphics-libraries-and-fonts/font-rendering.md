@@ -45,3 +45,21 @@ Font memory adds up faster than you'd expect. Here's a rough guide:
 - CJK font subset (1000 characters, 16px): ~30-50KB
 
 On MCUs with limited flash, font data can become the largest single asset. It's worth auditing which fonts you actually use and trimming unused character ranges.
+
+## Tips
+
+- Include only the character ranges you actually use — trimming from full ASCII to digits-and-a-few-symbols can cut font size dramatically
+- Use monospace fonts for data-heavy displays (sensor readings, tables) — they simplify layout calculations and align columns naturally
+- Test font readability on the actual display at viewing distance before committing to a size — fonts that look fine on a monitor may be illegible on a 0.96" OLED
+
+## Caveats
+
+- **Anti-aliased fonts only help on displays with sufficient color depth** — On monochrome OLEDs, AA fonts offer no benefit and waste memory. They're for color TFTs and grayscale displays
+- **Font conversion is a one-way process** — Once a TTF is converted to a bitmap font format, you can't easily change the size or style. Regenerate from the source TTF when you need adjustments
+- **CJK and Unicode fonts consume enormous flash** — Even a modest subset of 1000 CJK characters at 16px can exceed 30KB. Full Unicode coverage is impractical on most MCUs
+
+## In Practice
+
+- Text that appears blocky or aliased on a color TFT suggests bitmap fonts are being used where anti-aliased fonts would improve quality — check if the library and font format support AA rendering
+- Font glyphs that render with wrong spacing or overlap usually indicate a mismatch between the font metadata (glyph widths, baseline) and what the library expects — regenerate the font with the correct conversion tool for your library
+- A build that suddenly exceeds flash limits after adding a font is almost always because the full character set was included — restrict to the needed range during conversion

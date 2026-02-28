@@ -19,6 +19,20 @@ For I²C, it's just `VCC`, `GND`, `SDA`, `SCL`, plus pull-up resistors if your b
 
 The SSD1306 has 1KB of internal GDDRAM organized as 8 pages of 128 bytes each. Each byte represents a vertical column of 8 pixels within a page, with the LSB at the top. This page-oriented layout means that to set a single arbitrary pixel, you need to read-modify-write an entire byte (or maintain a local framebuffer and write the whole thing). Most libraries maintain a 1024-byte buffer in MCU RAM and flush it to the display when you call a `display()` or `update()` function. For a 128x32 display, you only need 512 bytes. On memory-constrained MCUs, this buffer size matters.
 
-## Gotchas
+## Tips
 
-Address conflicts are a common pain point: if you want two SSD1306 modules on the same I²C bus, you only get two addresses (`0x3C` and `0x3D`), and some modules don't even expose the address selection pad. Also, while these OLEDs have great contrast, they're susceptible to burn-in if you display a static image for extended periods — consider implementing a screen saver or periodically inverting the display for always-on applications. The viewing angle is excellent compared to LCDs, but the small size means text smaller than about 8 pixels tall becomes hard to read.
+- If the display stays dark after initialization, the charge pump is almost certainly not enabled — send `0x8D` followed by `0x14` before turning the display on
+- Use SPI instead of I²C if you need faster updates or plan to run multiple OLEDs (SPI uses CS for selection, avoiding the I²C address limit)
+- For always-on applications, periodically invert the display or implement a screen saver to reduce OLED burn-in risk
+
+## Caveats
+
+- **Only two I²C addresses available** — `0x3C` and `0x3D`, and some modules don't expose the address selection pad. Running three or more SSD1306 displays on one I²C bus isn't possible without an I²C multiplexer
+- **Burn-in is real** — OLED pixels degrade with use, and static content (status bars, fixed labels) will eventually leave ghost images. The effect is slow but cumulative
+- **The framebuffer lives in MCU RAM** — The 1024-byte buffer for a 128x64 display is a meaningful chunk on RAM-constrained MCUs. Ensure your memory budget accounts for it
+
+## In Practice
+
+- A display that initializes but shows random pixel noise typically means the framebuffer wasn't cleared before the first flush — zero the buffer during setup
+- Faint ghost images of old content after clearing the screen suggest the display buffer was cleared but not flushed, or only partially flushed
+- I²C communication that works for other devices but not the OLED usually means the address is wrong — run an I²C scan to confirm

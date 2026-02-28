@@ -23,6 +23,20 @@ The 8-slot limit forces some creativity. Common patterns I've seen and used:
 - **Unit symbols**: Degree symbol (°) is actually in the HD44780 ROM already at `0xDF`, but other symbols like "µ" might need custom characters
 - **Simple animations**: You can redefine a CGRAM slot while the character is displayed, and the display updates immediately — so you can animate a spinning icon by cycling through definitions in a timer loop
 
-## Gotchas
+## Tips
 
-The main limitation is that all 8 slots are global. If character code `0x00` is defined as a battery icon, every position on the display showing `0x00` displays that same icon. You can't have slot 0 mean one thing on the first line and another on the second. Also, CGRAM is volatile — it resets on power cycle, so you need to reload your custom characters during initialization. One subtle issue: some HD44780 clones have slightly different CGRAM behavior, particularly around the timing of when redefined characters appear on screen. If a character looks partially updated, add a brief delay after writing the CGRAM data before refreshing the display.
+- Use an online CGRAM character generator to design glyphs visually rather than computing byte arrays by hand
+- Define all custom characters during initialization, right after the HD44780 wake-up sequence
+- For progress bars, define a set of partially-filled characters (1/5, 2/5, 3/5, etc.) and string them across a row for smooth-looking fractional progress
+
+## Caveats
+
+- **All 8 slots are global** — Character code `0x00` displays the same glyph everywhere it appears on screen. You can't have slot 0 mean one thing on row 1 and another on row 2
+- **CGRAM is volatile** — Custom characters are lost on power cycle. Reload them as part of your initialization routine
+- **Redefining a character updates every instance immediately** — This is useful for animation (cycle a slot's definition in a timer), but it means you can't partially update character definitions without visible glitches
+
+## In Practice
+
+- A custom character that looks partially garbled or shows the wrong pattern often means the CGRAM address calculation is off by one slot — each slot is 8 bytes apart
+- Characters that work after a reset but not on cold boot may indicate the CGRAM write is happening before the initialization sequence completes — add a delay before defining characters
+- On some HD44780 clones, redefining a character while it's on screen may briefly show an intermediate state — adding a short delay after the CGRAM write before returning to DDRAM eliminates the flicker

@@ -29,12 +29,20 @@ Libraries like GxEPD2 often ship multiple LUT options: a "default" full-refresh 
 
 Some newer E-Ink panels and controllers support a "fast mode" that can refresh in under 300ms by using aggressive, shortened waveforms. The image quality is lower — reduced contrast, more ghosting — but the speed opens up possibilities like slowly-updating animations or reasonably responsive UI. Good Display's "fast refresh" panels and Waveshare's modules with partial refresh support have made this increasingly accessible.
 
-## Practical Recommendations
+## Tips
 
-For most projects, a workable pattern is:
+- Use partial refresh for routine updates (sensor readings, clock) and full refresh when the entire screen changes (page navigation, mode switch)
+- Schedule a periodic full refresh every 10-30 partial updates to clear accumulated ghosting
+- Give the display time to settle between updates — rapid back-to-back partial refreshes degrade image quality faster
 
-- Use **partial refresh** for routine updates (sensor readings, time display, status changes)
-- Perform a **full refresh** periodically to clean up ghosting (every 10-30 partial updates, or on a timer)
-- Use **full refresh** whenever the entire screen content changes (page navigation, mode switching)
-- Avoid rapid partial refreshes in a tight loop — give the display time to settle between updates
-- If operating in extreme temperatures (below 0°C or above 40°C), expect slower refresh and more ghosting; some controllers have temperature compensation, but it's not perfect
+## Caveats
+
+- **Partial refresh ghosting is cumulative** — Each partial update leaves a faint trace. Without periodic full refreshes, contrast degrades noticeably over dozens of updates
+- **Temperature affects refresh behavior** — Below 0°C, particle mobility drops and refresh takes longer. Above 40°C, particles can drift. Some controllers have temperature sensors and compensation, but results vary
+- **Custom LUTs are panel-specific** — A waveform LUT tuned for one panel model may produce poor results or even damage a different panel. Always start with the manufacturer's recommended LUT
+
+## In Practice
+
+- Ghosting that gradually worsens over time and clears after a full refresh is normal partial-refresh behavior — increase the full-refresh frequency if it's unacceptable
+- A display that partially updates correctly but leaves dark smears on white-to-black transitions likely needs a different partial-refresh waveform or longer pulse durations
+- Refresh that's much slower than expected at room temperature suggests the waveform LUT includes conservative timing for a wider temperature range — a custom LUT tuned for your operating range can improve this

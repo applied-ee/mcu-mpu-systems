@@ -45,3 +45,21 @@ Three-color displays (adding red or yellow) use different controllers and have s
 ## Library Support
 
 GxEPD2 (Arduino/ESP) is the most comprehensive E-Ink library, supporting dozens of panel variants. For Raspberry Pi, Waveshare's own Python library works well. For ESP-IDF, there are components in the IDF component registry but the ecosystem is less mature than for TFTs. MicroPython E-Ink support exists but varies in completeness depending on the display model.
+
+## Tips
+
+- Always check the exact module version (e.g., Waveshare 2.13" V2 vs V4) before selecting a driver — different versions use different controllers and are not interchangeable
+- Use GxEPD2 as the starting point for Arduino/ESP projects; it supports the widest range of panels and handles the BUSY pin polling automatically
+- For the best documentation on waveform LUTs, look at Good Display datasheets rather than Waveshare — Good Display is often the actual panel OEM
+
+## Caveats
+
+- **The BUSY pin is not optional** — Unlike TFT displays where you can fire-and-forget commands, E-Ink requires waiting for the BUSY signal after every refresh. Ignoring it produces corrupted or incomplete updates
+- **Module versions matter more than module size** — A Waveshare 2.13" V2 uses a completely different controller than a V4. Using the wrong driver version produces nothing on screen
+- **Large E-Ink panels (7.5"+) need separate controller boards** — They require more RAM than a typical MCU can provide and often use an IT8951 controller HAT that communicates over SPI or I²C at a higher level of abstraction
+
+## In Practice
+
+- A module that produces no output at all, despite correct SPI communication, is almost always a version/controller mismatch — verify the controller IC printed on the board's flex cable or silkscreen
+- Partial artifacts or incomplete updates that seem to "time out" suggest the BUSY pin isn't being polled correctly — check the active level (some modules are active-high, others active-low)
+- Modules from different suppliers that look identical may use different panel revisions — always verify by testing with known-working example code before integrating into a project

@@ -28,3 +28,21 @@ The visible "flashing" during a full refresh — where the display goes black, t
 ## What This Means for Embedded Projects
 
 E-Ink is not a general-purpose display replacement. It's a specialized technology that excels in a narrow but valuable niche: low-power, infrequently-updated, readable-in-sunlight applications. Trying to use E-Ink for anything resembling real-time updates or animation will lead to frustration. But for the right application, nothing else comes close — a coin cell can last years driving periodic updates to an E-Ink display, and the readability in bright light is unmatched.
+
+## Tips
+
+- Design for E-Ink's strengths: infrequent updates, readable-in-sunlight, zero standby power. If your use case requires updates more than once per minute, consider a different display technology
+- Power down the E-Ink controller between updates — the display holds its image without any power, so the controller only needs to be awake during refresh
+- Use high-contrast black-and-white designs for best readability; grayscale and color E-Ink sacrifice contrast and refresh speed
+
+## Caveats
+
+- **Three-color E-Ink (red/yellow) is significantly slower** — Full refresh can take 10-15 seconds because three particle populations must be sorted instead of two. Plan the UX around this delay
+- **Temperature affects particle mobility** — Below about 5°C, refresh slows noticeably and may produce incomplete updates. Above 40°C, particles can drift, causing image degradation
+- **Not all E-Ink panels are the same** — Different manufacturers use different capsule formulations, and even panels of the same size may have different contrast, viewing angle, and refresh characteristics
+
+## In Practice
+
+- An E-Ink display that shows faint, low-contrast images after refresh likely has a waveform LUT mismatch — the driving voltages or timing don't match what the panel needs
+- A panel that refreshes but leaves the previous image faintly visible (ghosting) needs a full refresh cycle to fully clear — this is normal and expected with partial refresh
+- E-Ink displays that work indoors but fail in cold weather are hitting the temperature sensitivity of the electrophoretic fluid — some panels have a minimum operating temperature of 0°C

@@ -19,6 +19,20 @@ The PCF8574 has three address pins (`A0`, `A1`, `A2`) exposed as solder jumpers 
 
 The library support is excellent across platforms. On Arduino, `LiquidCrystal_I2C` is the go-to — it's a drop-in replacement for the built-in `LiquidCrystal` library but communicates over I²C instead of parallel GPIO. For ESP-IDF, there are several I²C LCD components available in the component registry. MicroPython has `lcd_i2c` and similar modules. The one thing to watch is the pin mapping — not all backpack boards wire the PCF8574 outputs to the same HD44780 pins, and some libraries let you specify the mapping while others assume a fixed layout. If your display shows garbled text, a pin mapping mismatch is a likely culprit.
 
-## Gotchas
+## Tips
 
-The biggest practical issue is speed. I²C transactions add overhead, and at the standard 100kHz clock rate, updating the full display takes noticeably longer than direct parallel. For most applications (showing sensor readings, status text) this doesn't matter. But if you're trying to do rapid display updates or smooth scrolling, you'll feel the latency. Bumping the I²C clock to 400kHz helps, though not all PCF8574 modules handle it reliably. Also, the backlight control is typically all-or-nothing via a transistor — there's no PWM dimming unless you add your own circuit.
+- Always run an I²C scan first to find the actual address — don't trust the product listing
+- If you need multiple LCDs on one bus, bridge the `A0`–`A2` solder jumpers to set unique addresses
+- Try 400kHz I²C clock for faster updates, but fall back to 100kHz if you see missed characters or display glitches
+
+## Caveats
+
+- **Pin mapping varies between backpack boards** — Not all boards wire the PCF8574 outputs to the same HD44780 pins. If the display shows garbled text with a working library, the pin mapping is likely wrong. Some libraries let you specify the mapping; others assume a fixed layout
+- **Backlight is all-or-nothing** — The backlight transistor on most backpacks only supports on/off control. PWM dimming requires adding your own drive circuit
+- **I²C speed limits real update rate** — At 100kHz, a full 16x2 display update is noticeably slower than direct parallel. For status text this is fine; for scrolling or animation, the latency is visible
+
+## In Practice
+
+- A backpack module that doesn't respond to any I²C address is usually a wiring issue (swapped SDA/SCL) or missing pull-up resistors — check both before suspecting a dead module
+- Garbled text that's consistently wrong (same wrong characters each time) points to a pin mapping mismatch between the library and the board layout
+- Display corruption when other I²C devices share the bus suggests address conflicts or bus capacitance issues at higher clock speeds

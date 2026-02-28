@@ -21,6 +21,20 @@ The SSD1309 is essentially an SSD1306 scaled up for larger panels, commonly 2.42
 
 If monochrome isn't enough but full color is overkill, the SSD1327 offers 16-level grayscale at resolutions like 128x128. Each pixel is 4 bits, so the framebuffer is twice the size of an equivalent monochrome display. Grayscale is handy for smooth fonts, gradients, or displaying images with reasonable fidelity. The command set is different enough from the SSD1306 that you need a dedicated driver — don't expect SSD1306 libraries to work.
 
-## Choosing a Controller
+## Tips
 
-For most projects, the SSD1306 remains the default choice due to price, library support, and availability. Pick the SH1106 if you find a module you like that happens to use it (the 1.3" 128x64 modules are often SH1106). Go SSD1309 when you need a physically larger display. Consider the SSD1327 when grayscale rendering would genuinely improve your UI. The best advice is to check which controller your module actually uses before ordering libraries and writing code — the product listing doesn't always match reality.
+- Always verify which controller your module uses before writing code — product listings frequently misidentify SH1106 as SSD1306
+- When evaluating a new controller, check whether your preferred graphics library has explicit support before committing
+- The 1.3" 128x64 modules are very often SH1106 despite being sold as "SSD1306 OLED" — if one of these misbehaves with an SSD1306 driver, try an SH1106 driver first
+
+## Caveats
+
+- **SH1106 needs a 2-pixel column offset** — Using an SSD1306 driver on an SH1106 display shifts the image left by 2 pixels with a garbage strip on the right edge. The fix is a column offset, but diagnosing this the first time is confusing
+- **SH1106 lacks continuous horizontal addressing** — You can't stream a full framebuffer in one shot like the SSD1306. Each page needs its own address setup, which makes SH1106 updates slightly slower
+- **SSD1327 grayscale uses a different command set** — SSD1306 libraries won't work. The framebuffer is also twice the size (4 bits per pixel), so memory requirements double
+
+## In Practice
+
+- An image shifted by exactly 2 pixels with a vertical garbage strip on one edge is the classic sign of an SH1106 being driven as an SSD1306
+- A module that works perfectly with one library but produces nothing with another may be an SH1106/SSD1306 mismatch — the libraries may default to different controllers
+- Grayscale displays that show only black and white despite using an SSD1327 driver typically need the grayscale lookup table configured — check the contrast and gamma settings

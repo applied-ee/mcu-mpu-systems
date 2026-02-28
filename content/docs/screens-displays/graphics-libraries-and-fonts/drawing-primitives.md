@@ -44,3 +44,21 @@ If you need smooth edges on sprites over varying backgrounds, you're entering te
 ## Z-Ordering on Small Displays
 
 On a desktop, the window manager handles which elements appear on top of which. On an MCU display, you manage this yourself by controlling draw order — things drawn last appear on top. For simple UIs, a fixed draw order works: clear background, draw static elements, draw dynamic elements on top. For more complex UIs with overlapping elements, you may need to redraw from back to front whenever anything changes, which is where a framebuffer approach (draw everything into a buffer, then flush once) avoids flicker.
+
+## Tips
+
+- Use `fillRect()` for clearing regions rather than redrawing individual pixels — it's significantly faster on most display controllers because it maps to a windowed write
+- For icons and small images, XBM format is the simplest path to a working sprite on monochrome displays — most image editors can export it directly
+- Draw into a sprite buffer (TFT_eSprite, LGFX_Sprite) rather than directly to the screen when rendering complex elements — it eliminates flicker from sequential draw operations
+
+## Caveats
+
+- **Filled circles and triangles are much slower than filled rectangles** — Rectangles map to the display controller's column/row address window; circles and triangles require per-pixel or per-scanline calculations
+- **Color-key transparency is fragile** — If your actual image content happens to contain the transparency key color (often magenta `0xF81F`), those pixels will disappear. Choose a key color that doesn't appear in your assets
+- **Raw RGB565 sprite arrays are large** — A 64x64 sprite at 2 bytes per pixel is 8KB. On memory-constrained MCUs, a few sprites can consume a significant fraction of available RAM
+
+## In Practice
+
+- Flickering during screen updates means draw operations are being sent directly to the display without buffering — use a framebuffer or sprite to compose the frame off-screen and flush once
+- A sprite that appears with a colored border or background where transparency was expected indicates the transparency key color doesn't match the actual pixel values — verify the exact color value in both the asset and the code
+- Drawing that appears correct but is visibly slow usually means the code is calling `drawPixel()` in a loop rather than using batch operations like `fillRect()` or `pushImage()` — profiling individual draw calls reveals the bottleneck

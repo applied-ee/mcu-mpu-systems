@@ -21,6 +21,21 @@ In 8-bit mode, you send a full byte over `D0`–`D7` in one clock cycle. In 4-bi
 
 The HD44780 powers up in an undefined state, and the datasheet prescribes a specific wake-up sequence: wait at least 40ms after power-on, then send `0x30` three times with specific delays (4.1ms after the first, 100us after the second), then finally set the interface width. For 4-bit mode, you send `0x20` to switch, then configure display lines, font, display on/off, and entry mode. Getting these delays wrong leads to intermittent startup failures — the display works sometimes and garbles other times. I've found that being generous with delays (doubling the datasheet minimums) eliminates most flaky initialization problems.
 
-## Gotchas
+## Tips
 
-One thing that trips people up: the HD44780 has a relatively slow internal controller. After sending a character or command, you need to wait for the busy flag to clear (typically 37-40us for most commands, but 1.52ms for clear-display and return-home). You can either poll the busy flag via the `RW` pin or just insert conservative delays. Most simple drivers use delays to avoid the complexity of reading back from the display. Also, the 20x4 display has a non-obvious memory layout — the third row follows the first in DDRAM, and the fourth follows the second, so row addresses go `0x00`, `0x40`, `0x14`, `0x54`. That catches everyone at least once.
+- Use 4-bit mode unless you have a specific reason not to — it saves four GPIO pins and is what every library defaults to
+- Be generous with initialization delays (double the datasheet minimums) to eliminate flaky startup behavior across different clones
+- Tie `RW` low (write-only) to save a pin; busy-flag polling is rarely worth the extra GPIO
+- Start the contrast pot fully toward `VSS` and turn slowly — an invisible display is almost always a contrast issue, not a dead module
+
+## Caveats
+
+- **The 20x4 DDRAM layout is non-obvious** — Row addresses go `0x00`, `0x40`, `0x14`, `0x54`. The third row follows the first in memory, and the fourth follows the second. Setting the cursor to "row 2, column 0" requires address `0x14`, not `0x28`
+- **Command execution time varies widely** — Most commands take 37-40µs, but clear-display and return-home take 1.52ms. Sending commands faster than the controller can process them produces garbled output or missed characters
+- **Clone controllers may differ subtly** — Dozens of manufacturers clone the HD44780. Most are compatible, but some have slightly different timing requirements or character ROM contents. If a display misbehaves with working code, try increasing delays before suspecting wiring
+
+## In Practice
+
+- A display that shows blocks on the top row and nothing on the bottom row has power but hasn't been initialized — the initialization sequence isn't completing correctly
+- Characters appearing on the wrong rows on a 20x4 display almost always means the DDRAM address mapping wasn't accounted for
+- Intermittent garbled text on startup that clears after a reset suggests the initialization delays are too tight — the controller occasionally isn't ready when the first commands arrive

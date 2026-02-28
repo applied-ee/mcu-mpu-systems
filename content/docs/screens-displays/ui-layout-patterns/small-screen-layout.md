@@ -47,3 +47,21 @@ The approach shifts with display resolution:
 - **320x480** — approaching phone-like layouts; multi-column data, detailed charts, image display
 
 The temptation on larger displays is to fill all the space. Resist it — whitespace (or rather, blackspace on an OLED) improves readability and makes the important elements stand out.
+
+## Tips
+
+- Start by identifying the single most important value or status for each screen, then design the layout around it — everything else is supporting context
+- Use a 1-pixel separator line between the status bar and content area for clear visual hierarchy on monochrome displays
+- Keep the navigation model as simple as possible — "press to advance" is learnable in seconds; multi-button combinations require documentation
+
+## Caveats
+
+- **128x32 displays are too small for status bars** — Dedicating 8 pixels to a status bar leaves only 24 pixels (3 rows of tiny text) for content. On these displays, use the full screen for content and show status information on a separate page
+- **Font size sets the information density ceiling** — On a 128x64 display, readable text at 8px height gives you 8 lines. At 16px, you get 4 lines. The font choice is an architectural decision, not just an aesthetic one
+- **Page-based navigation hides information** — Users can only see one page at a time. If critical information spans multiple pages, users must remember or navigate back and forth. Minimize cross-page dependencies
+
+## In Practice
+
+- A UI that feels cluttered on a small display usually has too many elements competing for attention — remove or relocate secondary information rather than shrinking fonts
+- Users who frequently cycle through pages to find information suggest the page organization doesn't match their mental model — regroup content based on usage patterns, not logical categories
+- A status bar that consumes too much vertical space can often be compressed by using icons instead of text — a battery icon takes 8x8 pixels, while "BAT: 72%" takes 8x56 or more

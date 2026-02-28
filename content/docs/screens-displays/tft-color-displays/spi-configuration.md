@@ -36,3 +36,22 @@ The backlight pin usually connects to an LED anode through a current-limiting re
 ## Reset Pin
 
 The hardware reset pin (`RST`) isn't strictly required — most controllers support a software reset command — but using it is more reliable, especially at startup. A typical pattern is to pull `RST` low for 10-100ms, then release it and wait another 100-200ms before starting the initialization sequence. If you're short on GPIO, you can tie `RST` to your MCU's reset line so they reset together, or tie it high through a resistor and rely on software reset.
+
+## Tips
+
+- Use SPI Mode 0 (CPOL=0, CPHA=0) unless the datasheet explicitly says otherwise — this is correct for ILI9341, ST7789, and ST7735
+- Start at a conservative SPI clock (10MHz), confirm the display works, then increase incrementally until you find the reliable maximum for your wiring
+- Use the hardware reset pin if you have a spare GPIO — it eliminates a class of initialization failures that software reset can't always recover from
+- For 5V MCUs, use dedicated level shifters rather than resistive dividers for SPI speeds above 10MHz
+
+## Caveats
+
+- **The DC pin makes TFT SPI non-standard** — Generic SPI libraries that don't manage a data/command pin won't work. The display driver must toggle DC in sync with each SPI transaction
+- **Long wires limit SPI speed** — Breadboard jumper wires add capacitance and inductance. If a display works on short wires but corrupts on longer ones, reduce the clock speed before debugging the driver
+- **Backlight current may exceed GPIO limits** — Some modules expect the backlight pin to source 20-40mA, which exceeds what many MCU GPIO pins can safely provide. Check the module schematic or measure the current before connecting directly to a GPIO
+
+## In Practice
+
+- A display that flickers or shows intermittent corruption at high SPI speeds but works fine at lower speeds is hitting the reliable speed limit of the wiring — shorter, cleaner connections allow higher clocks
+- Pixel data that appears shifted or offset by one pixel column often indicates a timing issue with the DC pin — the controller is interpreting the first data byte as a command or vice versa
+- A display that initializes correctly but shows no backlight may have the backlight pin floating — some modules need it explicitly driven high

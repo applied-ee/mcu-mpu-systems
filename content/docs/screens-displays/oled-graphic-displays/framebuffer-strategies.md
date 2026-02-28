@@ -25,6 +25,20 @@ A middle-ground approach: keep a full framebuffer but track which regions have c
 
 If you want tear-free updates — where the display never shows a partially-drawn frame — you can maintain two framebuffers and swap between them. Draw into the back buffer, then swap it to become the active buffer and flush. This doubles your RAM usage (2KB for a 128x64 display), which is only practical on MCUs with enough headroom. It's rarely necessary for small OLEDs since the flush is fast enough that tearing is seldom visible, but for animations or fast-updating UIs it can make a visual difference.
 
-## Practical Advice
+## Tips
 
-For most projects using a 128x64 SSD1306, just use a full framebuffer. The 1KB cost is worth the simplicity. Drop to page mode only if you're on a very constrained platform (like an ATtiny or a project where RAM is consumed by other large buffers). Use dirty-rectangle tracking when you have a mostly-static display with a few changing elements and you want to minimize I²C traffic. Double buffering is the last thing to reach for — usually only when you see visible tearing and care enough to fix it.
+- For 128x64 SSD1306, just use a full framebuffer — the 1KB cost is almost always worth the simplicity
+- Use dirty-rectangle tracking when you have a mostly-static layout with a few changing elements (e.g., a sensor reading updating on an otherwise fixed screen)
+- In U8g2, the page buffer mode (128 bytes instead of 1024) is the go-to for ATtiny and similarly constrained platforms
+
+## Caveats
+
+- **Page mode re-executes your drawing code N times** — For a 128x64 display with 8 pages, your draw callback runs 8 times per frame. If drawing logic is complex (lots of string formatting, math), this overhead adds up
+- **Dirty-rectangle tracking adds bookkeeping** — You need to maintain and clear dirty flags in sync with your draw/flush cycle. Bugs here produce stale regions that don't update or unnecessary full redraws
+- **Double buffering doubles RAM cost** — 2KB for a 128x64 monochrome display, which may be significant on small MCUs. Only reach for this when visible tearing is an actual problem
+
+## In Practice
+
+- Flickering on a full-framebuffer setup usually means the framebuffer is being flushed while still being drawn into — either flush after all drawing is complete, or use double buffering
+- A page-mode display that looks correct but updates slowly suggests the drawing callback is doing expensive work that gets repeated per page — move invariant calculations outside the draw loop
+- Regions of the screen that appear "stuck" with stale content often indicate the dirty-rectangle tracking isn't marking those regions for refresh

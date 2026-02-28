@@ -40,3 +40,21 @@ LovyanGFX is a newer alternative to TFT_eSPI with a similar performance focus bu
 | ESP32 TFT, performance matters | TFT_eSPI or LovyanGFX |
 | Touch UI with widgets, polished look | LVGL |
 | Need to support many display types | U8g2 (mono) or LovyanGFX (color) |
+
+## Tips
+
+- Start with the library that matches your display and platform, not the one with the most features — simplicity wins in early prototyping
+- If you might eventually need a touch UI with widgets, start with LVGL from the beginning rather than migrating later — the porting effort grows with codebase size
+- TFT_eSPI's compile-time configuration produces faster code, but LovyanGFX's runtime configuration is more flexible for projects that need to support multiple display types
+
+## Caveats
+
+- **LVGL has a real learning curve** — The widget system, event model, and styling are powerful but complex. Budget time for ramp-up, especially if you're coming from simple `drawPixel()`-level libraries
+- **Adafruit GFX is not optimized for speed** — The abstraction layer adds overhead that shows on large displays or fast update rates. Fine for simple projects, but not the right choice when performance matters
+- **Library compatibility is not guaranteed across displays** — A library that works perfectly with one controller may not support another. Check the supported hardware list before building around a library
+
+## In Practice
+
+- A project that starts with Adafruit GFX for simplicity but later needs better performance can often migrate to TFT_eSPI or LovyanGFX — the drawing primitive APIs are similar enough that the port is mostly mechanical
+- LVGL applications that feel sluggish on a slow display are usually bottlenecked by the flush callback — optimize the display driver (DMA, partial refresh) before tuning the LVGL configuration
+- U8g2 projects that need color support eventually hit a wall — U8g2 is fundamentally monochrome. The migration to a color library requires rethinking the rendering pipeline

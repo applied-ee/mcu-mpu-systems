@@ -48,3 +48,21 @@ pixel = (value - data_min) * (pixel_max - pixel_min) / (data_max - data_min) + p
 Use integer arithmetic where possible: multiply before dividing to maintain precision, and watch for overflow on 16-bit platforms. For Y-axis mapping, remember that pixel coordinates typically increase downward, so you'll need to invert: `pixel_y = pixel_max - scaled_value`.
 
 Fixed-point math (e.g., scaling by 256 and shifting right by 8) is a practical alternative to floating point when you need fractional precision without the FPU overhead.
+
+## Tips
+
+- Use a fixed data range for sparklines and gauges when the expected bounds are known — auto-scaling makes small noise look like dramatic changes
+- For bar charts on small displays, include a 1-pixel gap between bars for visual clarity — solid adjacent bars are harder to distinguish, especially on monochrome screens
+- Multiply before dividing in integer scaling math to preserve precision, and use 32-bit intermediates to avoid overflow on 16-bit platforms
+
+## Caveats
+
+- **Auto-scaling sparklines can be misleading** — If the data range is narrow (e.g., temperature varying by 0.5°C), auto-scaling magnifies noise into what looks like significant variation. Fixed ranges prevent this at the cost of reduced visual resolution for small changes
+- **Y-axis is inverted in pixel coordinates** — Screen coordinates increase downward, but data values typically increase upward. Forgetting to invert produces upside-down charts
+- **Trigonometric functions for gauge rendering are expensive without an FPU** — Pre-compute a lookup table of sin/cos values for the number of angular positions you need rather than calling `sin()` and `cos()` in the draw loop
+
+## In Practice
+
+- A sparkline that appears to flatline despite changing data usually has a scaling range that's too wide — the variation is real but visually invisible at the current scale
+- A gauge needle that jitters between adjacent positions suggests the input data has noise that needs filtering — apply a simple moving average or exponential filter before mapping to pixel positions
+- Charts that draw correctly but take noticeably long to render are likely calling `drawPixel()` per data point — use `drawLine()` to connect adjacent points in a single call, or draw into a sprite and push once

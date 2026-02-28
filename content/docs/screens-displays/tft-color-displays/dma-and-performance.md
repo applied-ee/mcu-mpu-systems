@@ -31,11 +31,20 @@ LVGL is particularly good at this: it tracks dirty regions automatically and onl
 
 Before reaching for DMA, make sure you're actually running SPI as fast as your hardware allows. Many people leave the SPI clock at a conservative default. The ILI9341 can typically handle 40-80MHz write clocks with short connections. Going from 10MHz to 40MHz is an instant 4x throughput improvement with zero code complexity. Test incrementally — start at a known-good speed and increase until you see pixel corruption, then back off.
 
-## Practical Priorities
+## Tips
 
-When optimizing display throughput, I'd suggest this order:
+- Optimize in this order: maximize SPI clock (free), then partial refresh (biggest impact), then DMA (frees CPU), then double buffering (last resort)
+- Use LVGL's built-in dirty-region tracking rather than implementing your own — it handles partial refresh well across most display types
+- When testing DMA, verify the transfer completes before starting the next one — overlapping DMA transfers to the same SPI peripheral will corrupt data
 
-1. **Maximize SPI clock** — free performance, no code changes
-2. **Partial refresh** — send only what changed, biggest bang for effort
-3. **DMA transfers** — free up CPU during transfers
-4. **Double buffering** — only if you have RAM and need sustained high fps
+## Caveats
+
+- **Double buffering for a 240x320 RGB565 display needs 300KB** — That's only feasible on MCUs with large RAM (ESP32-S3, STM32H7, etc.). Most Cortex-M4 parts don't have enough
+- **DMA configuration is MCU-specific** — The concepts are universal, but register setup differs completely between STM32, ESP32, RP2040, and nRF52. Library support is the practical path for most people
+- **Partial refresh requires the display controller to support windowed addressing** — Most TFT controllers do, but the address setup commands add overhead. For very small update regions, the per-transfer overhead can dominate the actual pixel data
+
+## In Practice
+
+- A display that achieves good frame rates in benchmarks but stutters during normal use is likely CPU-bound during rendering — DMA frees the bus but doesn't help if the CPU can't prepare frames fast enough
+- Pixel corruption at high SPI clocks usually appears as shifted colors, horizontal lines, or blocky artifacts — drop the clock speed before investigating other causes
+- A display driven by DMA that occasionally shows torn frames is either missing a transfer-complete check or has a timing conflict between the DMA and CPU access to the framebuffer

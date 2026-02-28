@@ -33,3 +33,21 @@ When you need more screen real estate, the ILI9488 drives 320x480 panels (typica
 | ILI9488 | 320x480 | SPI | 18-bit (SPI) | When you need more pixels |
 
 The best advice: buy modules where the product listing clearly states the controller IC, and confirm it with a quick search before committing to a driver library. Modules that just say "TFT LCD" without specifying the controller are gambling.
+
+## Tips
+
+- Buy modules that explicitly state the controller IC in the listing — verify with a web search before committing to a driver
+- Start with the ILI9341 for your first color display project; it has the broadest library support and the most community troubleshooting resources
+- If you're building for a specific form factor, the ST7789 on a 240x240 square module gives a watch-like layout that works well for compact UIs
+
+## Caveats
+
+- **ILI9488 often requires RGB666 over SPI** — Many ILI9488 modules don't support RGB565 on the SPI interface, forcing 3 bytes per pixel instead of 2. This 50% bandwidth increase makes a noticeable performance difference on large screens
+- **ST7789 and ILI9341 drivers are not interchangeable** — Despite both being 240x320 SPI TFTs, the initialization sequences and some command bytes differ. Using the wrong driver produces a white screen or garbled colors
+- **Identical-looking modules may use different controllers** — Cheap modules from different batches or suppliers sometimes swap controllers without changing the product listing
+
+## In Practice
+
+- A white screen after initialization usually means the wrong controller driver is selected, the SPI mode is wrong, or the DC pin isn't toggling correctly
+- Colors that are shifted or inverted (red shows as blue, etc.) suggest the memory access control register or color format is misconfigured for the specific panel
+- A display that works at low SPI clock but corrupts at higher speeds may have the wrong SPI mode selected — most TFT controllers use Mode 0

@@ -47,3 +47,21 @@ When working with color constants or importing images, you'll frequently need to
 - Online color pickers that show RGB565 hex values are handy for defining UI colors
 - For images and bitmaps, tools like GIMP or ImageMagick can export in RGB565 format, or you can use offline converters that output C arrays
 - Be aware that the conversion is lossy — the 5/6/5 bit reduction means not every 24-bit color has an exact RGB565 equivalent, and banding can be visible in smooth gradients
+
+## Tips
+
+- Use your library's `color565(r, g, b)` helper rather than hand-computing RGB565 values — it avoids off-by-one shift errors
+- Define UI colors as named constants in RGB565 once, rather than converting from 24-bit at runtime
+- For image assets, use offline conversion tools that output C arrays in the correct format rather than decoding images on the MCU
+
+## Caveats
+
+- **Byte-swap errors produce wrong colors, not garbled images** — If red shows up as dark blue and vice versa, the RGB565 byte order is swapped. The image structure will look correct but the colors will be wrong
+- **RGB666 wastes bandwidth** — 3 bytes per pixel instead of 2, with no perceptible quality improvement for most UI content. If your controller supports RGB565, use it
+- **Endianness is a per-transfer concern** — A framebuffer stored in MCU memory with swapped bytes works correctly for DMA transfers but will confuse any CPU-side code that reads pixel values directly. Pick one convention and be consistent
+
+## In Practice
+
+- Colors that look "almost right but slightly off" after format conversion usually mean the bit shift or mask is wrong by one position — double-check the 5/6/5 bit layout against the formula
+- Visible banding in gradients on an RGB565 display is expected and inherent to the format — dithering can help but adds complexity
+- An image that looks correct on one display but color-shifted on another may be a byte-order difference between controllers — check whether both expect the same MSB/LSB ordering
