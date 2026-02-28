@@ -1,5 +1,5 @@
 ---
 title: "Complete Project Walkthroughs"
-weight: 10
+weight: 11
 bookCollapseSection: true
 ---

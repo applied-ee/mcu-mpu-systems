@@ -7,7 +7,7 @@ This is a structured notebook on microcontroller and microprocessor systems — 
 ## Repository Structure
 
 - **Hugo static site** using the [hugo-book](https://github.com/alex-shpak/hugo-book) theme
-- Content lives in `content/docs/` organized into ten L0 sections
+- Content lives in `content/docs/` organized into eleven L0 sections
 - Built with `make html` (runs `hugo --minify`)
 - Local dev server with `make server`
 
@@ -21,12 +21,13 @@ Content uses a 3-level hierarchy: L0 (top sections) → L1 (subsections) → L2 
 | 2 | `digital-interfaces/` | Digital Interfaces & Peripheral Patterns |
 | 3 | `led-systems/` | LED Systems |
 | 4 | `sensor-integration/` | Sensor Integration Patterns |
-| 5 | `power-battery/` | Real-World Power + Battery Projects |
-| 6 | `networking/` | Networking & Connectivity |
-| 7 | `linux-embedded/` | Linux-Based Embedded Systems |
-| 8 | `audio-projects/` | Audio Projects |
-| 9 | `productionizing/` | Productionizing Projects |
-| 10 | `project-walkthroughs/` | Complete Project Walkthroughs |
+| 5 | `screens-displays/` | Screens & Displays |
+| 6 | `power-battery/` | Real-World Power + Battery Projects |
+| 7 | `networking/` | Networking & Connectivity |
+| 8 | `linux-embedded/` | Linux-Based Embedded Systems |
+| 9 | `audio-projects/` | Audio Projects |
+| 10 | `productionizing/` | Productionizing Projects |
+| 11 | `project-walkthroughs/` | Complete Project Walkthroughs |
 
 L0 and L1 directories use `bookCollapseSection: true` in their `_index.md` so they appear as collapsible items in the sidebar. L2 entries are leaf pages (`.md` files) inside L1 directories.
 
