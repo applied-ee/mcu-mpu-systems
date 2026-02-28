@@ -1,0 +1,5 @@
+<script>
+window.__glossaryData = {{ site.Data.glossary | jsonify | safeJS }};
+window.__glossaryBase = "{{ "docs/glossary/" | relURL }}";
+</script>
+<script src="{{ "js/glossary.js" | relURL }}"></script>

@@ -1,0 +1,15 @@
+# Hugo build output
+public/
+
+# Hugo cache
+resources/
+
+# Hugo lock
+.hugo_build.lock
+
+# Claude Code local settings
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db

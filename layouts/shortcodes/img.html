@@ -1,0 +1,14 @@
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $width := .Get "width" | default "800" -}}
+
+{{- with .Page.Resources.Get $src -}}
+  {{- $processed := .Resize (printf "%sx webp q80" $width) -}}
+  <img src="{{ $processed.RelPermalink }}"
+       alt="{{ $alt }}"
+       width="{{ $processed.Width }}"
+       height="{{ $processed.Height }}"
+       loading="lazy" />
+{{- else -}}
+  <img src="{{ $src }}" alt="{{ $alt }}" />
+{{- end -}}
