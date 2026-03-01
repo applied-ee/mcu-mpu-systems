@@ -1,6 +1,6 @@
 ---
 title: "⚙️ Motor Control"
-weight: 9
+weight: 11
 bookCollapseSection: true
 ---
 

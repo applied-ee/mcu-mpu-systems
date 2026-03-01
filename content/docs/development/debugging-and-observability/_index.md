@@ -1,6 +1,6 @@
 ---
 title: "Debugging & Observability"
-weight: 60
+weight: 20
 bookCollapseSection: true
 ---
 

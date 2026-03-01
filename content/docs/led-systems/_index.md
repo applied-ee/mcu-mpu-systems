@@ -1,6 +1,6 @@
 ---
 title: "🔆 LED Systems"
-weight: 3
+weight: 4
 bookCollapseSection: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: "Project Bring-Up Workflow"
-weight: 70
+weight: 30
 bookCollapseSection: true
 ---
 

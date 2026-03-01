@@ -1,6 +1,6 @@
 ---
 title: "🔌 Digital Interfaces & Peripheral Patterns"
-weight: 2
+weight: 3
 bookCollapseSection: true
 ---
 

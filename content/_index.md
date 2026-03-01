@@ -19,7 +19,15 @@ The sections progress from core embedded fundamentals through peripheral interfa
 
 ### [Foundations for Building Embedded Systems]({{< relref "/docs/foundations" >}})
 
-Processor selection, power architecture, clock trees, memory layout, toolchains, debugging, and board bring-up — the core decisions and skills needed before writing application-level firmware.
+Processor selection (MCU and MPU), power architecture, clock trees, memory layout, and Linux-based embedded platforms — the core hardware decisions needed before writing application-level firmware.
+
+</div>
+
+<div class="section-card">
+
+### [Development & Debugging]({{< relref "/docs/development" >}})
+
+Cross-compilation, build systems, vendor SDKs, debug probes, serial output, bench instruments, crash analysis, and the systematic process of bringing a new board to life.
 
 </div>
 
@@ -73,9 +81,9 @@ Wired and wireless connectivity for embedded systems — Ethernet, Wi-Fi, BLE, L
 
 <div class="section-card">
 
-### [Linux-Based Embedded Systems]({{< relref "/docs/linux-embedded" >}})
+### [IoT & Systems Integration]({{< relref "/docs/iot-systems" >}})
 
-Single-board computers, embedded Linux distributions, device trees, kernel configuration, and the firmware patterns that differ when a full OS sits between the application and the hardware.
+MQTT brokers, cloud platform integration, device provisioning, fleet management, OTA updates, telemetry pipelines, and security patterns for connected embedded devices.
 
 </div>
 

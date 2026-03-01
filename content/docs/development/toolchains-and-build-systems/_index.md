@@ -1,6 +1,6 @@
 ---
 title: "Toolchains & Build Systems"
-weight: 50
+weight: 10
 bookCollapseSection: true
 ---
 

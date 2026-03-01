@@ -1,6 +1,6 @@
 ---
 title: "🔋 Power & Battery Patterns"
-weight: 6
+weight: 7
 bookCollapseSection: true
 ---
 
