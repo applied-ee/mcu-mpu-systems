@@ -12,4 +12,7 @@ This section covers the patterns and infrastructure involved in connecting embed
 
 ## Sections
 
-- **[OTA Firmware Updates]({{< relref "ota-updates" >}})** — Update delivery models, transport protocols, image signing, A/B partition schemes, and rollback strategies for keeping deployed devices healthy.
+- **[Messaging Protocols]({{< relref "messaging-protocols" >}})** — MQTT, CoAP, and AMQP: publish/subscribe and request/response patterns for moving data between devices, brokers, and cloud endpoints.
+- **[Network Architecture]({{< relref "network-architecture" >}})** — VLAN segmentation, firewall rules, ACLs, and edge gateway topologies for isolating and securing IoT traffic on production networks.
+- **[Cloud Platforms]({{< relref "cloud-platforms" >}})** — AWS IoT Core, Azure IoT Hub, and GCP: device registration, authentication, message routing, and state synchronization at fleet scale.
+- **[Device Lifecycle]({{< relref "device-lifecycle" >}})** — OTA firmware updates, device provisioning, and fleet monitoring across the operational lifetime of deployed devices.
