@@ -10,6 +10,8 @@ Embedded devices generate telemetry — heartbeats, sensor readings, log entries
 
 This section covers the backend side of the monitoring equation: the infrastructure that turns raw device telemetry into searchable logs, queryable metrics, actionable alerts, and security event detection. The device side — what metrics to collect, heartbeat design, log formatting, per-device alerting thresholds — is covered in [Fleet Monitoring]({{< relref "/docs/iot-systems/device-lifecycle/fleet-monitoring" >}}).
 
+The monitoring stack itself follows from the [platform architecture]({{< relref "/docs/iot-systems/platform-architecture" >}}) decision. Cloud-managed deployments typically use cloud-native monitoring (CloudWatch, Azure Monitor, Amazon Timestream) with minimal operational overhead. Self-hosted deployments assemble Prometheus, Grafana, Alertmanager, and a time-series database (InfluxDB, TimescaleDB) into a monitoring stack that must be deployed and maintained alongside the broker and device management infrastructure.
+
 The boundary between the two sides falls at the message broker. Fleet Monitoring describes what a device publishes to MQTT topics and how it manages its own telemetry budget. This section picks up from the broker onward: how subscribers route messages into log aggregators, how time-series databases store and downsample metric streams, how alerting pipelines decide when to page an engineer, and how security event monitoring detects anomalous behavior across the fleet.
 
 ## What This Section Covers
