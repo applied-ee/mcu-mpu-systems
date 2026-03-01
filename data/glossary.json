@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "term": "NPU",
+    "definition": "Neural Processing Unit — a dedicated hardware accelerator optimized for neural network inference, built around arrays of multiply-accumulate (MAC) units that execute matrix operations efficiently. Examples include Arm Ethos-U55/U65, Hailo-8L, and Intel Movidius.",
+    "anchor": "npu",
+    "aliases": ["Neural Processing Unit"]
+  },
+  {
+    "term": "TOPS",
+    "definition": "Tera Operations Per Second — a measure of peak inference throughput for AI accelerators. Represents trillions of integer (typically INT8) multiply-accumulate operations per second. Useful for comparing accelerators but does not directly predict real-world inference speed, which depends on model architecture, memory bandwidth, and operator support.",
+    "anchor": "tops",
+    "aliases": ["Tera Operations Per Second"]
+  },
+  {
+    "term": "TinyML",
+    "definition": "Machine learning inference on microcontrollers and ultra-low-power devices — typically Cortex-M class hardware with kilobytes of RAM and milliwatts of power budget. Frameworks like TensorFlow Lite Micro and CMSIS-NN enable deployment of quantized models for tasks like keyword spotting, gesture recognition, and anomaly detection.",
+    "anchor": "tinyml",
+    "aliases": []
+  },
+  {
+    "term": "TensorRT",
+    "definition": "NVIDIA's high-performance deep learning inference optimizer and runtime for GPU-accelerated platforms. Converts trained models (from ONNX, TensorFlow, PyTorch) into optimized engines with layer fusion, precision calibration (FP32/FP16/INT8), and kernel auto-tuning. Engines are hardware-specific and not portable between GPU architectures.",
+    "anchor": "tensorrt",
+    "aliases": []
+  },
+  {
+    "term": "ONNX",
+    "definition": "Open Neural Network Exchange — an open format for representing machine learning models. Provides interoperability between training frameworks (PyTorch, TensorFlow) and inference runtimes (ONNX Runtime, TensorRT). Models are defined by an operator set (opset) version that determines available operations.",
+    "anchor": "onnx",
+    "aliases": ["Open Neural Network Exchange"]
+  },
+  {
+    "term": "mAP",
+    "definition": "Mean Average Precision — the standard metric for evaluating object detection models. Computed as the mean of per-class Average Precision (area under the precision-recall curve) across all classes. mAP@0.5 uses 50% IoU threshold; mAP@0.5:0.95 averages across IoU thresholds from 0.5 to 0.95 in 0.05 steps (the stricter COCO metric).",
+    "anchor": "map",
+    "aliases": ["mean Average Precision"]
+  },
+  {
+    "term": "MFCC",
+    "definition": "Mel-Frequency Cepstral Coefficients — a compact representation of the spectral envelope of an audio signal, computed by applying a DCT to the log mel spectrogram. Typically 13–40 coefficients per frame. Widely used as input features for speech and audio classification models on edge devices.",
+    "anchor": "mfcc",
+    "aliases": ["Mel-Frequency Cepstral Coefficients"]
+  },
+  {
+    "term": "Edge TPU",
+    "definition": "Google's application-specific integrated circuit (ASIC) designed for edge inference. Delivers 4 TOPS of INT8 throughput at 2W. Available in USB, M.2, and Dev Board form factors. Requires models to be fully INT8-quantized TFLite models compiled with the Edge TPU Compiler — unsupported operations fall back to the host CPU.",
+    "anchor": "edge-tpu",
+    "aliases": ["Coral Edge TPU", "Coral TPU"]
+  },
+  {
+    "term": "Quantization",
+    "definition": "The process of reducing the numerical precision of neural network weights and activations — typically from 32-bit floating point to 8-bit integer (INT8) or 16-bit float (FP16). Reduces model size, memory bandwidth, and inference latency, especially on hardware with dedicated low-precision compute units. Requires calibration to minimize accuracy loss.",
+    "anchor": "quantization",
+    "aliases": []
+  },
+  {
+    "term": "TFLite Micro",
+    "definition": "TensorFlow Lite for Microcontrollers — a lightweight inference framework designed to run on bare-metal microcontrollers with as little as 16 KB of RAM. Uses a statically-allocated memory arena, requires explicit operator registration, and supports optimized backends like CMSIS-NN (Cortex-M) and ESP-NN (ESP32).",
+    "anchor": "tflite-micro",
+    "aliases": ["TensorFlow Lite Micro", "TFLM", "TensorFlow Lite for Microcontrollers"]
+  }
+]
