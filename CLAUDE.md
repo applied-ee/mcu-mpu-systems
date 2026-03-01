@@ -7,7 +7,7 @@ This is a structured notebook on microcontroller and microprocessor systems — 
 ## Repository Structure
 
 - **Hugo static site** using the [hugo-book](https://github.com/alex-shpak/hugo-book) theme
-- Content lives in `content/docs/` organized into eleven L0 sections
+- Content lives in `content/docs/` organized into twelve L0 sections
 - Built with `make html` (runs `hugo --minify`)
 - Local dev server with `make server`
 
@@ -26,8 +26,9 @@ Content uses a 3-level hierarchy: L0 (top sections) → L1 (subsections) → L2 
 | 7 | `networking/` | Networking & Connectivity |
 | 8 | `linux-embedded/` | Linux-Based Embedded Systems |
 | 9 | `audio-projects/` | Audio Projects |
-| 10 | `productionizing/` | Productionizing Projects |
-| 11 | `project-walkthroughs/` | Complete Project Walkthroughs |
+| 9 | `motor-control/` | Motor Control |
+| 10 | `edge-ai/` | Edge AI |
+| 99 | `glossary/` | Glossary |
 
 L0 and L1 directories use `bookCollapseSection: true` in their `_index.md` so they appear as collapsible items in the sidebar. L2 entries are leaf pages (`.md` files) inside L1 directories.
 

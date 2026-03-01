@@ -4,7 +4,7 @@ type: docs
 ---
 
 <div class="landing-hero">
-# MCU & MPU Systems
+<h1>MCU & MPU Systems</h1>
 </div>
 
 Microcontrollers and embedded Linux systems sit at the center of modern hardware projects — from LED installations and audio pipelines to SDR nodes and networked gateways. This site is a practical guide to designing and building those systems reliably. It focuses on real-world integration: power architecture, signal integrity, peripheral wiring, firmware structure, and deployment patterns. The aim is to move beyond projects that merely function on a breadboard, toward systems designed and built to last over time, under load, and in real operating environments.
@@ -89,17 +89,25 @@ Audio DACs, amplifier circuits, I2S and PDM interfaces, DSP pipelines, and the a
 
 <div class="section-card">
 
-### [Productionizing Projects]({{< relref "/docs/productionizing" >}})
+### [Motor Control]({{< relref "/docs/motor-control" >}})
 
-OTA updates, configuration management, enclosure design, thermal management, regulatory compliance, and the engineering required to move from prototype to deployed product.
+Stepper motors, DC brushed and brushless motors, servo control, driver ICs, encoder feedback, current sensing, and motion profiles for precise electromechanical actuation.
 
 </div>
 
 <div class="section-card">
 
-### [Complete Project Walkthroughs]({{< relref "/docs/project-walkthroughs" >}})
+### [Edge AI]({{< relref "/docs/edge-ai" >}})
 
-End-to-end builds that integrate multiple sections — from requirements and hardware selection through firmware, testing, and deployment of complete embedded systems.
+On-device inference, TinyML, TensorFlow Lite Micro, model quantization, accelerator hardware, sensor-driven ML pipelines, and edge deployment patterns.
+
+</div>
+
+<div class="section-card">
+
+### [Glossary]({{< relref "/docs/glossary" >}})
+
+Terms and definitions used throughout this site.
 
 </div>
 
