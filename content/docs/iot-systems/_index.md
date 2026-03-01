@@ -16,3 +16,4 @@ This section covers the patterns and infrastructure involved in connecting embed
 - **[Network Architecture]({{< relref "network-architecture" >}})** — VLAN segmentation, firewall rules, ACLs, and edge gateway topologies for isolating and securing IoT traffic on production networks.
 - **[Cloud Platforms]({{< relref "cloud-platforms" >}})** — AWS IoT Core, Azure IoT Hub, and GCP: device registration, authentication, message routing, and state synchronization at fleet scale.
 - **[Device Lifecycle]({{< relref "device-lifecycle" >}})** — OTA firmware updates, device provisioning, and fleet monitoring across the operational lifetime of deployed devices.
+- **[Monitoring & Telemetry]({{< relref "monitoring-telemetry" >}})** — Backend infrastructure for ingesting, storing, querying, and visualizing device telemetry: log aggregation, metrics dashboards, alerting pipelines, time-series databases, distributed tracing, and security event monitoring.
