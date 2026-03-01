@@ -19,16 +19,16 @@ Content uses a 3-level hierarchy: L0 (top sections) → L1 (subsections) → L2 
 |--------|-----------|-------|
 | 1 | `foundations/` | Foundations for Building Embedded Systems |
 | 2 | `development/` | Development & Debugging |
-| 3 | `digital-interfaces/` | Digital Interfaces & Peripheral Patterns |
-| 4 | `led-systems/` | LED Systems |
-| 5 | `sensor-integration/` | Sensor Integration Patterns |
-| 6 | `screens-displays/` | Screens & Displays |
-| 7 | `power-battery/` | Real-World Power + Battery Projects |
-| 8 | `networking/` | Networking & Connectivity |
-| 9 | `iot-systems/` | IoT & Systems Integration |
-| 10 | `audio-projects/` | Audio Projects |
-| 11 | `motor-control/` | Motor Control |
-| 12 | `edge-ai/` | Edge AI |
+| 3 | `power-battery/` | Real-World Power + Battery Projects |
+| 4 | `networking/` | Networking & Connectivity |
+| 5 | `digital-interfaces/` | Digital Interfaces & Peripheral Patterns |
+| 6 | `led-systems/` | LED Systems |
+| 7 | `sensor-integration/` | Sensor Integration Patterns |
+| 8 | `screens-displays/` | Screens & Displays |
+| 9 | `audio-projects/` | Audio Projects |
+| 10 | `motor-control/` | Motor Control |
+| 11 | `edge-ai/` | Edge AI |
+| 12 | `iot-systems/` | IoT & Systems Integration |
 | 99 | `glossary/` | Glossary |
 
 L0 and L1 directories use `bookCollapseSection: true` in their `_index.md` so they appear as collapsible items in the sidebar. L2 entries are leaf pages (`.md` files) inside L1 directories.

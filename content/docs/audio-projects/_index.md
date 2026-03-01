@@ -1,5 +1,5 @@
 ---
 title: "🎧 Audio Projects"
-weight: 10
+weight: 9
 bookCollapseSection: true
 ---

@@ -1,6 +1,6 @@
 ---
 title: "🌐 IoT & Systems Integration"
-weight: 9
+weight: 12
 bookCollapseSection: true
 ---
 

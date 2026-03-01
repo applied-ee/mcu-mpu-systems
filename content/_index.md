@@ -11,7 +11,7 @@ Microcontrollers and embedded Linux systems sit at the center of modern hardware
 
 ## How It's Organized
 
-The sections progress from core embedded fundamentals through peripheral interfaces, specific application domains, and finally production and deployment concerns.
+The sections progress from foundational concepts and cross-cutting concerns through specific component domains, and finally to the system-level integration that ties devices together.
 
 <div class="section-cards">
 
@@ -28,6 +28,22 @@ Processor selection (MCU and MPU), power architecture, clock trees, memory layou
 ### [Development & Debugging]({{< relref "/docs/development" >}})
 
 Cross-compilation, build systems, vendor SDKs, debug probes, serial output, bench instruments, crash analysis, and the systematic process of bringing a new board to life.
+
+</div>
+
+<div class="section-card">
+
+### [Power & Battery Patterns]({{< relref "/docs/power-battery" >}})
+
+Li-ion integration, low-power design, converter topologies, current measurement, protection circuits, USB Power Delivery, and energy harvesting for battery-powered embedded systems.
+
+</div>
+
+<div class="section-card">
+
+### [Networking & Connectivity]({{< relref "/docs/networking" >}})
+
+Wired and wireless connectivity for embedded systems — Ethernet, Wi-Fi, BLE, LoRa, MQTT, and the protocol stacks that connect devices to networks and cloud services.
 
 </div>
 
@@ -65,30 +81,6 @@ Character LCDs, monochrome OLEDs, color TFTs, and E-Ink panels — display techn
 
 <div class="section-card">
 
-### [Power & Battery Patterns]({{< relref "/docs/power-battery" >}})
-
-Li-ion integration, low-power design, converter topologies, current measurement, protection circuits, USB Power Delivery, and energy harvesting for battery-powered embedded systems.
-
-</div>
-
-<div class="section-card">
-
-### [Networking & Connectivity]({{< relref "/docs/networking" >}})
-
-Wired and wireless connectivity for embedded systems — Ethernet, Wi-Fi, BLE, LoRa, MQTT, and the protocol stacks that connect devices to networks and cloud services.
-
-</div>
-
-<div class="section-card">
-
-### [IoT & Systems Integration]({{< relref "/docs/iot-systems" >}})
-
-MQTT brokers, cloud platform integration, device provisioning, fleet management, OTA updates, telemetry pipelines, and security patterns for connected embedded devices.
-
-</div>
-
-<div class="section-card">
-
 ### [Audio Projects]({{< relref "/docs/audio-projects" >}})
 
 Audio DACs, amplifier circuits, I2S and PDM interfaces, DSP pipelines, and the analog and digital signal chains involved in embedded audio playback and processing.
@@ -108,6 +100,14 @@ Stepper motors, DC brushed and brushless motors, servo control, driver ICs, enco
 ### [Edge AI]({{< relref "/docs/edge-ai" >}})
 
 On-device inference, TinyML, TensorFlow Lite Micro, model quantization, accelerator hardware, sensor-driven ML pipelines, and edge deployment patterns.
+
+</div>
+
+<div class="section-card">
+
+### [IoT & Systems Integration]({{< relref "/docs/iot-systems" >}})
+
+MQTT brokers, cloud platform integration, device provisioning, fleet management, OTA updates, telemetry pipelines, and security patterns for connected embedded devices.
 
 </div>
 

@@ -1,6 +1,6 @@
 ---
 title: "🖥️ Screens & Displays"
-weight: 6
+weight: 8
 bookCollapseSection: true
 ---
 

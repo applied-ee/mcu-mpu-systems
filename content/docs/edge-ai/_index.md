@@ -1,6 +1,6 @@
 ---
 title: "🧠 Edge AI"
-weight: 12
+weight: 11
 bookCollapseSection: true
 ---
 
