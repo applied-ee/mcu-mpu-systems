@@ -16,4 +16,4 @@ This section covers the core hardware knowledge needed before writing applicatio
 - **[Power Architecture for Embedded Projects]({{< relref "power-architecture" >}})** — Regulator selection, decoupling strategy, power sequencing, and power budget estimation for reliable embedded power delivery.
 - **[Clocks & Timing]({{< relref "clocks-and-timing" >}})** — Oscillator sources, clock tree configuration, PLL setup, and the low-speed clock domains that drive RTC and watchdog peripherals.
 - **[Memory Architecture & Linker Configuration]({{< relref "memory-and-linker" >}})** — Flash and SRAM fundamentals, stack and heap layout, linker script mechanics, and persistent storage strategies.
-- **[Linux-Based Embedded]({{< relref "linux-embedded" >}})** — Single-board computers, embedded Linux distributions, image-based deployments, real-time Linux, and GPIO access patterns that differ from bare-metal MCU development.
+- **[Embedded OS & SBC Platforms]({{< relref "embedded-os-sbc" >}})** — Single-board computer selection, embedded operating systems, real-time Linux, GPIO access patterns, image-based deployments, and the boot process on MPU-class hardware.
