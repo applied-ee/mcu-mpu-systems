@@ -1,5 +1,5 @@
 ---
-title: "Complete Project Walkthroughs"
+title: "🗺️ Complete Project Walkthroughs"
 weight: 11
 bookCollapseSection: true
 ---

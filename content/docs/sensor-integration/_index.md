@@ -1,5 +1,5 @@
 ---
-title: "Sensor Integration Patterns"
+title: "📡 Sensor Integration Patterns"
 weight: 4
 bookCollapseSection: true
 ---
