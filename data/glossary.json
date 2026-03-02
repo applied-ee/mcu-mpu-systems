@@ -58,5 +58,107 @@
     "definition": "TensorFlow Lite for Microcontrollers — a lightweight inference framework designed to run on bare-metal microcontrollers with as little as 16 KB of RAM. Uses a statically-allocated memory arena, requires explicit operator registration, and supports optimized backends like CMSIS-NN (Cortex-M) and ESP-NN (ESP32).",
     "anchor": "tflite-micro",
     "aliases": ["TensorFlow Lite Micro", "TFLM", "TensorFlow Lite for Microcontrollers"]
+  },
+  {
+    "term": "6LoWPAN",
+    "definition": "IPv6 over Low-Power Wireless Personal Area Networks — an adaptation layer that compresses IPv6 headers (40 bytes down to 2–7 bytes) for transmission over IEEE 802.15.4 radio frames with a 127-byte MTU. Enables direct IPv6 connectivity for constrained wireless sensor nodes via header compression (IPHC) and fragmentation.",
+    "anchor": "6lowpan",
+    "aliases": ["IPv6 over Low-Power Wireless Personal Area Networks"]
+  },
+  {
+    "term": "Thread",
+    "definition": "An IPv6-based mesh networking protocol built on IEEE 802.15.4 and 6LoWPAN. Designed for low-power home and building automation with self-healing routing, no single point of failure, and built-in security (AES-128-CCM). Device roles include Routers, Sleepy End Devices, and Border Routers. OpenThread is the reference open-source implementation.",
+    "anchor": "thread",
+    "aliases": ["OpenThread"]
+  },
+  {
+    "term": "Matter",
+    "definition": "An application-layer smart home protocol that runs over WiFi, Thread, and Ethernet, using BLE only for device commissioning. Developed by the Connectivity Standards Alliance (CSA). Supports multi-admin and multi-fabric operation, allowing a single device to be controlled by multiple ecosystems (Apple Home, Google Home, Amazon Alexa) simultaneously.",
+    "anchor": "matter",
+    "aliases": []
+  },
+  {
+    "term": "GATT",
+    "definition": "Generic Attribute Profile — the framework that defines how BLE devices exchange data using a hierarchy of services, characteristics, and descriptors. Each characteristic has a 16-bit handle, properties (read, write, notify, indicate), and an optional Client Characteristic Configuration Descriptor (CCCD) to enable notifications.",
+    "anchor": "gatt",
+    "aliases": ["Generic Attribute Profile"]
+  },
+  {
+    "term": "GAP",
+    "definition": "Generic Access Profile — the BLE layer that controls advertising, scanning, and connection establishment. Defines four device roles: Peripheral (advertises and accepts connections), Central (scans and initiates connections), Broadcaster (advertises only, non-connectable), and Observer (scans only, never connects).",
+    "anchor": "gap",
+    "aliases": ["Generic Access Profile"]
+  },
+  {
+    "term": "SoftAP",
+    "definition": "Software-enabled Access Point — a mode where a WiFi-equipped microcontroller operates as an access point, allowing other devices to connect to it directly. Commonly used for initial device provisioning: the MCU hosts a captive portal web page where credentials for the target WiFi network are entered and stored to non-volatile storage.",
+    "anchor": "softap",
+    "aliases": ["Software Access Point", "Soft AP"]
+  },
+  {
+    "term": "DTIM",
+    "definition": "Delivery Traffic Indication Message — a field in WiFi beacon frames that tells power-saving stations when buffered broadcast/multicast frames will be delivered. The DTIM interval (typically 1–10 beacon periods) determines how long a station can sleep between wake-ups to check for pending data. Higher DTIM intervals save power but increase latency.",
+    "anchor": "dtim",
+    "aliases": ["Delivery Traffic Indication Message"]
+  },
+  {
+    "term": "RMII",
+    "definition": "Reduced Media Independent Interface — a 7-pin interface between an Ethernet MAC and PHY operating at a 50 MHz reference clock. Uses fewer pins than MII (16 pins at 25 MHz) by multiplexing 4-bit data paths down to 2-bit paths at double the clock rate. The standard interface for connecting STM32, ESP32, and i.MX RT MACs to external PHY chips like the LAN8720A.",
+    "anchor": "rmii",
+    "aliases": ["Reduced Media Independent Interface"]
+  },
+  {
+    "term": "mDNS",
+    "definition": "Multicast DNS — a protocol that resolves hostnames to IP addresses on local networks without a central DNS server. Devices announce and query names in the .local domain via multicast (224.0.0.251:5353 for IPv4, ff02::fb for IPv6). Enables accessing embedded devices by name (e.g., sensor.local) instead of IP address.",
+    "anchor": "mdns",
+    "aliases": ["Multicast DNS"]
+  },
+  {
+    "term": "DNS-SD",
+    "definition": "DNS-Based Service Discovery — a protocol that uses DNS record types (PTR, SRV, TXT) to advertise and discover network services. Works over mDNS for local networks or standard DNS for wide-area discovery. Enables devices to announce services like _http._tcp or _mqtt._tcp so clients can find them automatically.",
+    "anchor": "dns-sd",
+    "aliases": ["DNS-Based Service Discovery", "DNS Service Discovery"]
+  },
+  {
+    "term": "PTA",
+    "definition": "Packet Traffic Arbitration — a hardware or software mechanism on combo radio chips (WiFi + BLE, BLE + 802.15.4) that coordinates access to a shared radio front-end or antenna. Prevents simultaneous transmission by granting priority to one protocol based on packet type, timing, or configured priority levels.",
+    "anchor": "pta",
+    "aliases": ["Packet Traffic Arbitration"]
+  },
+  {
+    "term": "SLAAC",
+    "definition": "Stateless Address Autoconfiguration — an IPv6 mechanism that allows devices to generate their own global unicast address without a DHCP server. The device combines a network prefix (received via Router Advertisement) with a self-generated interface identifier (from EUI-64 or random) and verifies uniqueness via Duplicate Address Detection.",
+    "anchor": "slaac",
+    "aliases": ["Stateless Address Autoconfiguration"]
+  },
+  {
+    "term": "lwIP",
+    "definition": "Lightweight IP — a widely used open-source TCP/IP stack designed for embedded systems with limited RAM (20–40 KB typical). Provides three API levels: raw callbacks (no RTOS required), netconn (sequential, RTOS-based), and BSD sockets (highest compatibility). Used by ESP-IDF, STM32 HAL, and many RTOS platforms.",
+    "anchor": "lwip",
+    "aliases": ["Lightweight IP", "LwIP"]
+  },
+  {
+    "term": "DTLS",
+    "definition": "Datagram Transport Layer Security — the UDP equivalent of TLS, providing encryption, authentication, and integrity for datagram protocols. Used by CoAP, Thread commissioning, and WebRTC. Adds anti-replay protection and handles packet reordering. On constrained devices, DTLS handshakes consume 30–50 KB of RAM with mbedTLS.",
+    "anchor": "dtls",
+    "aliases": ["Datagram Transport Layer Security"]
+  },
+  {
+    "term": "BLE",
+    "definition": "Bluetooth Low Energy — a wireless protocol designed for short-range, low-power communication. Operates in the 2.4 GHz ISM band with 2 MHz channel spacing and adaptive frequency hopping across 37 data channels. A BLE peripheral advertising at 1-second intervals draws roughly 10 µA average, enabling years of operation on a coin cell battery.",
+    "anchor": "ble",
+    "aliases": ["Bluetooth Low Energy", "Bluetooth LE"]
+  },
+  {
+    "term": "MTU",
+    "definition": "Maximum Transmission Unit — the largest packet or frame size (in bytes) that a network interface can transmit in a single transaction. In BLE, the default ATT MTU is 23 bytes (20 bytes usable payload); after MTU negotiation it can reach 247 bytes (244 bytes payload). In Ethernet, the standard MTU is 1500 bytes.",
+    "anchor": "mtu",
+    "aliases": ["Maximum Transmission Unit"]
+  },
+  {
+    "term": "PHY",
+    "definition": "Physical Layer Transceiver — the hardware component that interfaces between digital logic (MAC) and the physical transmission medium. In Ethernet, the PHY converts between the MAC's digital data (via RMII or MII) and analog signals on the cable. Common embedded Ethernet PHYs include LAN8720A, DP83848, and KSZ8081.",
+    "anchor": "phy",
+    "aliases": ["Physical Layer Transceiver"]
   }
 ]

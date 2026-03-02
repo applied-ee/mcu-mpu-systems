@@ -1,0 +1,7 @@
+{{ $terms := sort site.Data.glossary "term" }}
+<dl class="glossary-list">
+{{ range $terms }}
+  <dt id="{{ .anchor }}"><strong>{{ .term }}</strong></dt>
+  <dd>{{ .definition }}</dd>
+{{ end }}
+</dl>
