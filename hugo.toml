@@ -1,6 +1,6 @@
-baseURL = "https://applied-ee.github.io/mcu-mpu-systems/"
+baseURL = "https://applied-ee.github.io/embedded/"
 languageCode = "en-us"
-title = "MCU & MPU Systems"
+title = "Embedded Systems Development"
 theme = "hugo-book"
 
 # Enable git-based last modified dates
@@ -17,13 +17,13 @@ enableGitInfo = true
   # Enable search (requires extended Hugo)
   BookSearch = true
   # Repository for commit links
-  BookRepo = "https://github.com/applied-ee/mcu-mpu-systems"
+  BookRepo = "https://github.com/applied-ee/embedded"
   # Folder for menu resources
   BookMenuBundle = "/menu"
   # Section to use for the homepage
   BookSection = "docs"
   # Set site description for SEO
-  description = "A structured notebook on microcontroller and microprocessor systems — architecture, peripherals, firmware, and hands-on development"
+  description = "A structured notebook on embedded systems development — architecture, peripherals, firmware, and practical integration patterns"
 
 [markup]
   [markup.goldmark]

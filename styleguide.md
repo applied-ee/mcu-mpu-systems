@@ -1,6 +1,6 @@
 # Content Style Guide
 
-This document defines the structure, terminology, and intent of pages in the MCU & MPU Systems notebook. Its purpose is consistency — not just in formatting, but in how readers develop **applied reasoning** when building embedded systems.
+This document defines the structure, terminology, and intent of pages in the Embedded Systems Development notebook. Its purpose is consistency — not just in formatting, but in how readers develop **applied reasoning** when building embedded systems.
 
 The goal is that after reading a handful of pages, a reader subconsciously knows:
 - where to find practical guidance

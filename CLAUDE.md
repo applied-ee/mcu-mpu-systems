@@ -1,8 +1,8 @@
-# MCU & MPU Systems — Project Conventions
+# Embedded Systems Development — Project Conventions
 
 ## Purpose
 
-This is a structured notebook on microcontroller and microprocessor systems — architecture, peripherals, firmware, and hands-on development. The tone is exploratory and practical: recording concepts, experiments, procedures, patterns, and gotchas encountered while working with MCUs and MPUs.
+This is a structured notebook on embedded systems development — architecture, peripherals, firmware, and practical integration patterns. The tone is exploratory and practical: recording concepts, experiments, procedures, patterns, and gotchas encountered while working with MCUs and MPUs.
 
 ## Repository Structure
 

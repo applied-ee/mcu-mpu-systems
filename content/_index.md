@@ -1,13 +1,13 @@
 ---
-title: "MCU & MPU Systems"
+title: "Embedded Systems Development"
 type: docs
 ---
 
 <div class="landing-hero">
-<h1>MCU & MPU Systems</h1>
+<h1>Embedded Systems Development</h1>
 </div>
 
-Microcontrollers and embedded Linux systems sit at the center of modern hardware projects — from LED installations and audio pipelines to SDR nodes and networked gateways. This site is a practical guide to designing and building those systems reliably. It focuses on real-world integration: power architecture, signal integrity, peripheral wiring, firmware structure, and deployment patterns. The aim is to move beyond projects that merely function on a breadboard, toward systems designed and built to last over time, under load, and in real operating environments.
+Microcontrollers and microprocessor-based systems sit at the center of modern embedded hardware — from LED installations and audio pipelines to SDR nodes and networked gateways. This site is a structured reference for the concepts, patterns, and techniques involved in designing and building those systems reliably. It focuses on real-world integration: power architecture, signal integrity, peripheral wiring, firmware structure, and deployment patterns. The aim is to develop applied reasoning that moves beyond breadboard experiments toward systems designed and built to last over time, under load, and in real operating environments.
 
 ## How It's Organized
 
