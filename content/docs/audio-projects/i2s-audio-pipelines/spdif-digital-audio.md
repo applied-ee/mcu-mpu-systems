@@ -77,7 +77,7 @@ When no dedicated S/PDIF peripheral is available, existing peripherals can be re
 
 ### ESP32 I2S — S/PDIF Transmit
 
-The ESP32 I2S peripheral, configured in LCD mode with a carefully chosen bit clock, can output a pre-encoded S/PDIF bitstream. The firmware encodes each PCM sample into biphase mark coded subframes in software, then writes the encoded bitstream to the I2S DMA buffer as if it were raw audio data. The I2S peripheral shifts out the bits at the correct rate.
+The ESP32 I2S peripheral includes an LCD parallel mode originally designed for driving display panels. In this configuration, the peripheral functions as a DMA-driven, clocked data shifter. When configured for a single data line and an appropriate bit clock, it can output a pre-encoded S/PDIF bitstream at the correct line rate. The firmware encodes each PCM sample into biphase mark coded subframes in software, then places the encoded bitstream into the I2S DMA buffer. The I2S engine shifts the bits out exactly as stored, without applying I2S framing or audio interpretation — which is why LCD mode is required instead of normal I2S mode.
 
 The `arduino-audio-tools` library implements this as `AudioOutputSPDIF`, which handles BMC encoding, preamble insertion, and channel status generation. The I2S clock is set to produce the required 6.144 MHz bit rate for 48 kHz output (or 5.6448 MHz for 44.1 kHz).
 
