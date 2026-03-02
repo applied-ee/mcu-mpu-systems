@@ -7,6 +7,8 @@ weight: 50
 
 S/PDIF (Sony/Philips Digital Interface) carries stereo PCM audio over a single unidirectional connection — either a coaxial cable or a TOSLINK optical fiber. Unlike I2S, which uses separate clock and data lines, S/PDIF embeds the clock in the data stream using biphase mark coding. This self-clocking property means only one signal wire is needed, but it also means the receiver must recover the clock from the incoming bitstream, introducing jitter sensitivity that does not exist in I2S links.
 
+S/PDIF is defined as a unidirectional, point-to-point serial link. In practice, the continuous self-clocking bitstream can be buffered or optically split to feed multiple receivers, but the protocol itself assumes one transmitter driving one receiver.
+
 On MCUs and MPUs, S/PDIF appears in three forms: dedicated hardware peripherals (STM32 SAI SPDIF mode, NXP i.MX RT SPDIF transceiver), software implementations using repurposed peripherals (ESP32 I2S for TX, ESP32 RMT for RX), and external transceiver ICs that bridge between S/PDIF and I2S. The choice depends on whether the application needs receive, transmit, or both — and whether the target MCU has a peripheral that can handle the timing requirements.
 
 ## Protocol Fundamentals
