@@ -156,6 +156,12 @@
     "aliases": ["Maximum Transmission Unit"]
   },
   {
+    "term": "S/PDIF",
+    "definition": "Sony/Philips Digital Interface — a consumer digital audio interconnect that carries stereo PCM (or compressed multi-channel) audio over a single unidirectional coaxial or optical (TOSLINK) connection. Uses biphase mark coding to embed the clock in the data stream per IEC 60958. Common MCU integration paths include STM32 SAI SPDIF mode, NXP i.MX RT SPDIF peripheral, ESP32 I2S/RMT software implementations, and external transceiver ICs (WM8804, DIR9001).",
+    "anchor": "spdif",
+    "aliases": ["SPDIF", "S-PDIF", "Sony/Philips Digital Interface"]
+  },
+  {
     "term": "PHY",
     "definition": "Physical Layer Transceiver — the hardware component that interfaces between digital logic (MAC) and the physical transmission medium. In Ethernet, the PHY converts between the MAC's digital data (via RMII or MII) and analog signals on the cable. Common embedded Ethernet PHYs include LAN8720A, DP83848, and KSZ8081.",
     "anchor": "phy",

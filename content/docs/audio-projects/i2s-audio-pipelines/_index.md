@@ -19,3 +19,5 @@ These pages focus on the system-level engineering of I2S audio paths. Protocol-l
 - **[TDM & Multi-Channel Audio]({{< relref "tdm-multichannel-audio" >}})** — TDM mode on I2S peripherals, slot addressing, microphone arrays, per-slot DMA routing on ESP32 and STM32 SAI.
 
 - **[Sample Rate Conversion]({{< relref "sample-rate-conversion" >}})** — ASRC for mismatched clocks, integer-ratio resampling, polyphase filters, and quality/CPU trade-offs on constrained hardware.
+
+- **[S/PDIF Digital Audio]({{< relref "spdif-digital-audio" >}})** — S/PDIF receive and transmit on MCUs: hardware peripheral support (STM32 SAI, NXP SPDIF), software implementations (ESP32 RMT/I2S), external transceiver ICs, and TOSLINK vs coaxial physical layers.
