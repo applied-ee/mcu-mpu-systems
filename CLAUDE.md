@@ -25,7 +25,7 @@ Content uses a 3-level hierarchy: L0 (top sections) → L1 (subsections) → L2 
 | 6 | `led-systems/` | LED Systems |
 | 7 | `sensor-integration/` | Sensor Integration Patterns |
 | 8 | `screens-displays/` | Screens & Displays |
-| 9 | `audio-projects/` | Audio Projects |
+| 9 | `audio-projects/` | Audio Systems |
 | 10 | `motor-control/` | Motor Control |
 | 11 | `edge-ai/` | Edge AI |
 | 12 | `iot-systems/` | IoT & Systems Integration |

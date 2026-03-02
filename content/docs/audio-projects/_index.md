@@ -1,10 +1,10 @@
 ---
-title: "Audio Projects"
+title: "🎧 Audio Systems"
 weight: 9
 bookCollapseSection: true
 ---
 
-# Audio Projects
+# Audio Systems
 
 Audio on microcontrollers spans a wide range of complexity — from a PWM pin driving a piezo buzzer to multi-channel I2S pipelines feeding real-time DSP chains and streaming over Bluetooth. The common thread is moving audio samples through a system with tight latency constraints, limited memory, and fixed-point arithmetic. A 16-bit stereo stream at 44.1 kHz produces 176,400 bytes per second — fast enough that buffer management, DMA configuration, and interrupt timing dominate the firmware design in ways that lower-bandwidth sensor applications never encounter.
 
